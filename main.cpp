@@ -18,6 +18,7 @@
 #include "camera.h"
 #include "scene.h"
 #include "vertex.h"
+#include "texture_list.h"
 
 
 float bgR = 0.0f, bgG = 0.0f, bgB = 0.0f;
@@ -32,21 +33,34 @@ bool is_moving = true;
 int current_id = 0;
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
+                                 "layout (location = 1) in vec3 aNormal;\n"
                                  "layout (location = 2) in vec2 aTexCoord;\n"
                                  "uniform mat4 model;\n"
                                  "uniform mat4 view;\n"
                                  "uniform mat4 projection;\n"
+                                 "out vec2 TexCoord;\n"
                                  "void main()\n"
                                  "{\n"
                                  "  gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+                                 "  TexCoord = aTexCoord;\n"
                                  "}\0";
 
 const char *fragmentShader = "#version 330 core\n"
                              "out vec4 FragColor;\n"
+                             "in vec2 TexCoord;\n"
+                             "uniform bool useTexture;\n"
                              "uniform vec3 color;\n"
+                             "uniform sampler2D ourTexture;\n"
                              "void main()\n"
                              "{\n"
-                             "   FragColor = vec4(color, 1.0f);\n"
+                             "   if(useTexture)\n"
+                             "   {\n"
+                             "      FragColor = texture(ourTexture, TexCoord);\n"
+                             "   }\n"
+                             "   else\n"
+                             "   {\n"
+                             "      FragColor = vec4(color, 1.0f);\n"
+                             "   }\n"
                              "}\0";
 						   								   
 
@@ -332,7 +346,7 @@ int main()
 
 
     shaders.use_shader("UNIQUE");
-
+    shaders.set_bool("UNIQUE", "useTexture", false);
     std::cout << "Size of vertex: " << sizeof(Vertex) << "\n";
     auto projection_matrix = get_perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
     shaders.set_mat4("UNIQUE", "projection", projection_matrix);
