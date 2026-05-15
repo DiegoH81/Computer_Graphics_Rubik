@@ -50,3 +50,15 @@ Vector3 normalize (const Vector3& in_vec)
     float l = vec_length(in_vec);
     return (in_vec / l);
 }
+
+Vector2::Vector2(const float& in_x, const float& in_y):
+    x(in_x), y(in_y)
+{}
+
+Vector2& Vector2::operator = (const Vector3& other)
+{
+    x = other.x;
+    y = other.y;
+
+    return *this;
+}
