@@ -17,87 +17,28 @@
 class ShaderList
 {
 public:
-    ShaderList():
-        VERTEX(0), shader_programs() {}
+    ShaderList();
 
 
-    void create_vertex_shader(const char *vertexShaderSource)
-    {
-        VERTEX = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(VERTEX, 1, &vertexShaderSource, nullptr);
-        glCompileShader(VERTEX);
-    }
+    void create_vertex_shader(const char *vertexShaderSource);
 
-    void add_fragment_shader(const std::string& shader_name, const char *fragment_Shader_Source)
-    {
-        unsigned int fragment_source_shader = 0;
-        fragment_source_shader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragment_source_shader, 1, &fragment_Shader_Source, nullptr);
-        glCompileShader(fragment_source_shader);
+    void add_fragment_shader(const std::string& shader_name, const char *fragment_Shader_Source);
 
+    void delete_shaders();
 
-        unsigned int shader_program = 0;
-        shader_program = glCreateProgram();
-        
-        glAttachShader(shader_program, VERTEX);
-        glAttachShader(shader_program, fragment_source_shader);
-        glLinkProgram(shader_program);
-        
+    void use_shader(const std::string& in_shader);
 
-        glDeleteShader(fragment_source_shader);
+    void delete_programs();
 
-        shader_programs[shader_name] = shader_program;
-    }
+    void set_vec2(const std::string& shader_name, const std::string& uniform_name, float x, float y);
 
-    void delete_shaders()
-    {
-        glDeleteShader(VERTEX);
-    }
+    void set_vec3(const std::string& shader_name, const std::string& uniform_name, float x, float y, float z);
 
-    void use_shader(const std::string& in_shader)
-    {
-        glUseProgram(shader_programs[in_shader]);
-    }
+    void set_mat4(const std::string& shader_name, const std::string& uniform_name, const Matrix_4& in_matrix);
 
-    void delete_programs()
-    {
-        for (auto &i: shader_programs)
-            glDeleteProgram(i.second);
-    }
+    unsigned int get_cur_prog(const std::string& shader_name);
 
-    void set_vec2(const std::string& shader_name, const std::string& uniform_name, float x, float y)
-    {
-        unsigned int current_program = shader_programs[shader_name];
-        int uniform = glGetUniformLocation(current_program, uniform_name.c_str());
-        glUniform2f(uniform, x, y);
-    }
-
-    void set_vec3(const std::string& shader_name, const std::string& uniform_name, float x, float y, float z)
-    {
-        unsigned int current_program = shader_programs[shader_name];
-        int uniform = glGetUniformLocation(current_program, uniform_name.c_str());
-        glUniform3f(uniform, x, y, z);
-    }
-
-    void set_mat4(const std::string& shader_name, const std::string& uniform_name, const Matrix_4& in_matrix)
-    {
-        unsigned int current_program = shader_programs[shader_name];
-        int uniform = glGetUniformLocation(current_program, uniform_name.c_str());
-        glUniformMatrix4fv(uniform, 1, GL_TRUE, in_matrix.matrix.data());
-    }
-
-    unsigned int get_cur_prog(const std::string& shader_name)
-    {
-        return shader_programs[shader_name];
-    }
-
-    void set_float(const std::string& shader_name, const std::string& uniform_name, float val)
-    {
-        unsigned int current_program = shader_programs[shader_name];
-        int uniform = glGetUniformLocation(current_program, uniform_name.c_str());
-
-        glUniform1f(uniform, val);
-    }
+    void set_float(const std::string& shader_name, const std::string& uniform_name, float val);
 
 private:
     unsigned int VERTEX;
