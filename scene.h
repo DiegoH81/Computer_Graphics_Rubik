@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "vector.h"
 #include "shape.h"
-#include "shaderList.h"
+#include "shader_list.h"
 #include "matrix.h"
 
 #define PUBLIC_TR true
