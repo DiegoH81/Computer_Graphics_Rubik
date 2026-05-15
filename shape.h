@@ -11,6 +11,7 @@
 #include "indices_info.h"
 #include "vector.h"
 #include "shader_list.h"
+#include "vertex.h"
 
 inline Color base_color(70, 130, 180, true);
 
@@ -21,7 +22,7 @@ public:
     unsigned int VAO, VBO, EBO;
     Point3 center;
 
-    std::vector <float> vertices;
+    std::vector <Vertex> vertices;
     std::vector <unsigned int> indices;
 
     std::vector <IndicesInfo> info_faces,
@@ -37,14 +38,15 @@ public:
     void draw(ShaderList& shaders, const Matrix_4& in_world = Matrix_4());
 
     void set_face_color(int in_id, Color* in_color);
-
     void set_edge_color(int in_id, Color* in_color);
-
     void set_point_color(int in_id, Color* in_color);
 
-    virtual void add_edges(Color *in_color = &base_color);
-    virtual void add_points(Color *in_color = &base_color);
+    void add_edges(Color *in_color = &base_color);
+    void add_points(Color *in_color = &base_color);
     void add_faces(Color *in_color = &base_color);
+protected:
+    virtual void setup_edges(Color *in_color = &base_color);
+    virtual void setup_points(Color *in_color = &base_color);
 };
 
 
@@ -53,13 +55,12 @@ class Circle : public Shape
 public:
     Circle(const unsigned int& in_points, const float& in_radius = 1.0f);
 
-    void add_edges(Color* in_color = &base_color) override;
-
 private:
     unsigned int n_points;
     float radius;
 
     void create_circle(Color *in_color);
+    void setup_edges(Color* in_color = &base_color) override;
 };
 
 class CircularSector : public Shape
@@ -73,13 +74,12 @@ public:
                     const float& in_ox = 0.0f,
                     const float& in_oy = 0.0f);
 
-    void add_edges(Color* in_color = &base_color) override;
-
 private:
     unsigned int n_points;
     float radius, start_angle, end_angle;
 
     void create_sector(const float& in_ox, const float& in_oy, Color *in_color);
+    void setup_edges(Color* in_color = &base_color) override;
 };
 
 class Rectangle : public Shape
@@ -87,12 +87,10 @@ class Rectangle : public Shape
 public:
     Rectangle(const float& in_height, const float& in_width);
 
-    void add_edges(Color* in_color = &base_color) override;
-
-    void add_points(Color* in_color = &base_color) override;
-
 private:
     void create_rectangle(float in_height, float in_width, Color *in_color);
+    void setup_edges(Color* in_color = &base_color) override;
+    void setup_points(Color* in_color = &base_color) override;
 };
 
 class Elipse : public Shape
@@ -102,10 +100,9 @@ public:
            const float& in_height,
            const float& in_width);
 
-    void add_edges(Color* in_color = &base_color) override;
-
 private:
     void create_elipse(float in_height, float in_width, int in_points, Color *in_color);
+    void setup_edges(Color* in_color = &base_color) override;
 };
 
 class Pyramid : public Shape
@@ -113,13 +110,12 @@ class Pyramid : public Shape
 public:
     Pyramid(const float& in_height, const float& in_base);
 
-    void add_points(Color* in_color = &base_color) override;
-
-    void add_edges(Color* in_color = &base_color) override;
 private:
     float height, base;
 
     void create_pyramid(Color *in_color);
+    void setup_edges(Color* in_color = &base_color) override;
+    void setup_points(Color* in_color = &base_color) override;
 };
 
 class Cube : public Shape
@@ -127,13 +123,12 @@ class Cube : public Shape
 public:
     Cube(const float& in_size);
 
-    void add_points(Color* in_color = &base_color) override;
-
-    void add_edges(Color* in_color = &base_color) override;
 private:
     float size;
 
     void create_cube(Color* in_color);
+    void setup_edges(Color* in_color = &base_color) override;
+    void setup_points(Color* in_color = &base_color) override;
 };
 
 class Cone : public Shape
@@ -143,14 +138,13 @@ public:
          const float& in_height,
          const float& in_radius = 1.0f);
 
-    void add_edges(Color* in_color = &base_color) override;
-
-    void add_points(Color* in_color = &base_color) override;
 private:
     float height, radius;
     unsigned int points;
 
     void create_cone(Color* in_color);
+    void setup_edges(Color* in_color = &base_color) override;
+    void setup_points(Color* in_color = &base_color) override;
 };
 
 class Sphere : public Shape
@@ -159,14 +153,13 @@ public:
     Sphere(const unsigned int& in_points,
            const float& in_radius = 1.0f);
 
-    void add_edges(Color* in_color = &base_color) override;
-
-    void add_points(Color* in_color = &base_color) override;
 private:
     unsigned int points;
     float radius;
 
     void create_sphere(Color* in_color);
+    void setup_edges(Color* in_color = &base_color) override;
+    void setup_points(Color* in_color = &base_color) override;
 };
 
 #endif

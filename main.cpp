@@ -17,6 +17,7 @@
 #include "matrix.h"
 #include "camera.h"
 #include "scene.h"
+#include "vertex.h"
 
 
 float bgR = 0.0f, bgG = 0.0f, bgB = 0.0f;
@@ -31,6 +32,7 @@ bool is_moving = true;
 int current_id = 0;
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
+                                 "layout (location = 2) in vec2 aTexCoord;\n"
                                  "uniform mat4 model;\n"
                                  "uniform mat4 view;\n"
                                  "uniform mat4 projection;\n"
@@ -269,6 +271,8 @@ int main()
 
     Cube hijoww(0.2);
     hijoww.add_faces(&red);
+    hijoww.add_edges(&golden);
+    hijoww.add_points(&le_lime);
 
 	SceneNode root(-1);
     root.traslate(Vector3(0.0, 0.0, 0.0f), true);
@@ -329,10 +333,9 @@ int main()
 
     shaders.use_shader("UNIQUE");
 
+    std::cout << "Size of vertex: " << sizeof(Vertex) << "\n";
     auto projection_matrix = get_perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
     shaders.set_mat4("UNIQUE", "projection", projection_matrix);
-
-    
 
     while(!glfwWindowShouldClose(window))
     {

@@ -51,7 +51,7 @@ Vector3 normalize (const Vector3& in_vec)
     return (in_vec / l);
 }
 
-Vector2::Vector2(const float& in_x = 0.0f, const float& in_y = 0.0f):
+Vector2::Vector2(const float& in_x, const float& in_y):
     x(in_x), y(in_y)
 {}
 

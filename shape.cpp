@@ -30,13 +30,19 @@ void Shape::init_buffers()
     glBindVertexArray(VAO);
     
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
     // Specify how to read
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0);
     
 
@@ -136,32 +142,47 @@ void Shape::set_point_color(int in_id, Color* in_color)
     info_points[in_id].color = in_color;
 }
 
-void Shape::add_edges(Color *in_color) {}
-void Shape::add_points(Color *in_color) {}
+void Shape::add_edges(Color *in_color)
+{
+    has_edges = true;
+    for (auto &f : info_edges)
+        f.color = in_color;
+}
+
+void Shape::add_points(Color *in_color)
+{
+    has_points = true;
+    for (auto &f : info_points)
+        f.color = in_color;
+}
 
 void Shape::add_faces(Color *in_color)
 {
     has_faces = true;
     for (auto &f : info_faces)
         f.color = in_color;
-
-    init_buffers();
 }
 
-// CIRCLE
+void Shape::setup_edges(Color *in_color)
+{ }
 
+void Shape::setup_points(Color *in_color)
+{ }
+
+// CIRCLE
 
 Circle::Circle(const unsigned int& in_points, const float& in_radius)
 : n_points(in_points), radius(in_radius), Shape()
 {
     create_circle(&base_color);
+    setup_edges(&base_color);
+
+    init_buffers();
 }
 
-void Circle::add_edges(Color* in_color) 
+void Circle::setup_edges(Color* in_color) 
 {
-    has_edges = true;
-
-    int v_count = (vertices.size() / 3) - 1;
+    int v_count = vertices.size() - 1;
 
     info_edges.push_back(IndicesInfo(1, v_count, GL_LINE_LOOP, NO_EBO, in_color));
 }
@@ -171,7 +192,8 @@ void Circle::create_circle(Color *in_color)
 {
     float step = 360.0 / float(n_points);
     
-    vertices.push_back(center.x); vertices.push_back(center.y); vertices.push_back(0.0f);
+
+    vertices.push_back(Point3(center.x, center.y, 0.0f));
 
     for (int i = 0; i <= n_points; i++)
     {
@@ -179,10 +201,10 @@ void Circle::create_circle(Color *in_color)
         float x = center.x + radius * std::cos(ang);
         float y = center.y + radius * std::sin(ang);
         
-        vertices.push_back(x); vertices.push_back(y); vertices.push_back(0.0f);
+        vertices.push_back(Point3(x, y, 0.0f));
     }
 
-    int v_count = vertices.size() / 3;
+    int v_count = vertices.size();
     info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_color));
 }
 
@@ -200,13 +222,14 @@ CircularSector::CircularSector(const unsigned int& in_points,
     Shape()
 {
     create_sector(in_ox, in_oy, &base_color);
+    setup_edges(&base_color);
+
+    init_buffers();
 }
 
-void CircularSector::add_edges(Color* in_color)
+void CircularSector::setup_edges(Color* in_color)
 {
-    has_edges = true;
-
-    int v_count = vertices.size() / 3;
+    int v_count = vertices.size();
 
     info_edges.push_back(IndicesInfo(0, v_count, GL_LINE_LOOP, NO_EBO, in_color));
 }
@@ -217,7 +240,7 @@ void CircularSector::create_sector(const float& in_ox, const float& in_oy, Color
     float range = end_angle - start_angle;
     float step = range / float(n_points);
     
-    vertices.push_back(in_ox); vertices.push_back(in_oy); vertices.push_back(0.0f);
+    vertices.push_back(Point3(in_ox, in_oy, 0.0f));
 
     for (int i = 0; i <= n_points; i++)
     {
@@ -225,7 +248,7 @@ void CircularSector::create_sector(const float& in_ox, const float& in_oy, Color
         float x = in_ox + radius * std::cos(ang);
         float y = in_oy + radius * std::sin(ang);
         
-        vertices.push_back(x); vertices.push_back(y); vertices.push_back(0.0f);
+        vertices.push_back(Point3(x, y, 0.0f));
     }
 
     float mid_angle = start_angle + (end_angle - start_angle) / 2.0f;
@@ -237,7 +260,7 @@ void CircularSector::create_sector(const float& in_ox, const float& in_oy, Color
 
 
 
-    int v_count = vertices.size() / 3;
+    int v_count = vertices.size();
     info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_color));
 }
 
@@ -247,22 +270,22 @@ Rectangle::Rectangle(const float& in_height, const float& in_width)
     : Shape()
 {
     create_rectangle(in_height, in_width, &base_color);
+    setup_edges(&base_color);
+    setup_points(&base_color);
+
+    init_buffers();
 }
 
-void Rectangle::add_edges(Color* in_color)
+void Rectangle::setup_edges(Color* in_color)
 {
-    has_edges = true;
-
-    int v_count = vertices.size() / 3;
+    int v_count = vertices.size();
 
     info_edges.push_back(IndicesInfo(0, v_count, GL_LINE_LOOP, NO_EBO, in_color));
 }
 
-void Rectangle::add_points(Color* in_color)
+void Rectangle::setup_points(Color* in_color)
 {
-    has_points = true;
-
-    int v_count = vertices.size() / 3;
+    int v_count = vertices.size();
 
     for (int i = 0; i < v_count; i++)
         info_points.push_back(IndicesInfo(i, 1, GL_POINTS, NO_EBO, in_color));
@@ -280,30 +303,34 @@ void Rectangle::create_rectangle(float in_height, float in_width, Color *in_colo
     
 
     for (int i = 0; i < 4; i++)
-    {
-        vertices.push_back(l_x[i] + center.x);
-        vertices.push_back(l_y[i] + center.y);
-        vertices.push_back(0.0f);
-    }
+        vertices.push_back(Point3(l_x[i] + center.x, l_y[i] + center.y, 0.0f));
 
-    int v_count = vertices.size() / 3;
+    int v_count = vertices.size();
     info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_color));
 }
 
 // ELIPSE
-
-void Elipse::add_edges(Color* in_color) 
+Elipse::Elipse(const unsigned int& in_points,
+               const float& in_height,
+               const float& in_width)
 {
-    has_edges = true;
+    create_elipse(in_height, in_width, in_points, &base_color);
+    setup_edges(&base_color);
 
-    int v_count = (vertices.size() / 3) - 1;
+    init_buffers();
+}
+
+
+void Elipse::setup_edges(Color* in_color) 
+{
+    int v_count = vertices.size()- 1;
 
     info_edges.push_back(IndicesInfo(1, v_count, GL_LINE_LOOP, NO_EBO, in_color));
 }
 
 void Elipse::create_elipse(float in_height, float in_width, int in_points, Color *in_color)
 {
-    vertices.push_back(center.x); vertices.push_back(center.y); vertices.push_back(0.0f);
+    vertices.push_back(Point3(center.x, center.y, 0.0f));
 
     float step = 360.0 / float(in_points);
 
@@ -314,38 +341,35 @@ void Elipse::create_elipse(float in_height, float in_width, int in_points, Color
         float x = std::cos(ang_step) * in_width;
         float y = std::sin(ang_step) * in_height;
 
-        vertices.push_back(center.x + x);
-        vertices.push_back(center.y + y);
-        vertices.push_back(0.0f);
+        vertices.push_back(Point3(center.x + x, center.y + y, 0.0f));
     }
 
-    int v_count = vertices.size() / 3;
+    int v_count = vertices.size();
     info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_color));
 }
 
 // PYRAMID
-
 Pyramid::Pyramid(const float& in_height, const float& in_base)
     : Shape(), height(in_height), base(in_base)
 {
     create_pyramid(&base_color);
+    setup_edges(&base_color);
+    setup_points(&base_color);
+
+    init_buffers();
 }
 
-void Pyramid::add_points(Color* in_color) 
+void Pyramid::setup_points(Color* in_color) 
 {
-    has_points = true;
-    
-    int v_count = vertices.size() / 3;
+    int v_count = vertices.size();
 
 
     for (int i = 0; i < v_count; i++)
         info_points.push_back(IndicesInfo(i, 1, GL_POINTS, NO_EBO, in_color));
 }
 
-void Pyramid::add_edges(Color* in_color) 
+void Pyramid::setup_edges(Color* in_color) 
 {
-    has_edges = true;
-
     int s_indice = indices.size();
 
     // Front
@@ -374,15 +398,13 @@ void Pyramid::create_pyramid(Color *in_color)
     float b = base  / 2.0f;
 
     // Top
-    vertices.push_back(center.x);
-    vertices.push_back(center.y + h); 
-    vertices.push_back(center.z);
+    vertices.push_back(Point3(center.x, center.y + h, center.z));
 
     // FL FR BR BL
-    vertices.push_back(center.x - b);   vertices.push_back(center.y - h);  vertices.push_back(center.z + b);
-    vertices.push_back(center.x + b);   vertices.push_back(center.y - h);  vertices.push_back(center.z + b);
-    vertices.push_back(center.x + b);   vertices.push_back(center.y - h);  vertices.push_back(center.z - b);
-    vertices.push_back(center.x - b);   vertices.push_back(center.y - h);  vertices.push_back(center.z - b);
+    vertices.push_back(Point3(center.x - b, center.y - h, center.z + b));
+    vertices.push_back(Point3(center.x + b, center.y - h, center.z + b));
+    vertices.push_back(Point3(center.x + b, center.y - h, center.z - b));
+    vertices.push_back(Point3(center.x - b, center.y - h, center.z - b));
 
     // Faces
     indices.push_back(0); indices.push_back(1); indices.push_back(2);
@@ -410,25 +432,23 @@ Cube::Cube(const float& in_size):
     Shape(), size(in_size)
 {
     create_cube(&base_color);
+    setup_edges(&base_color);
+    setup_points(&base_color);
+
+    init_buffers();
 }
 
-void Cube::add_points(Color* in_color) 
+void Cube::setup_points(Color* in_color) 
 {
-    has_points = true;
-
-    int v_count = vertices.size() / 3;
-
+    int v_count = vertices.size();
 
     for (int i = 0; i < v_count; i++)
         info_points.push_back(IndicesInfo (i, 1, GL_POINTS, NO_EBO, in_color));
 }
 
-void Cube::add_edges(Color* in_color) 
+void Cube::setup_edges(Color* in_color) 
 {
-    has_edges = true;
-
     int s_indice = indices.size();
-    std::cout << "S_INDICE: " << s_indice << "\n";
     // Front
     indices.push_back(0); indices.push_back(1);
     indices.push_back(1); indices.push_back(2);
@@ -463,14 +483,14 @@ void Cube::create_cube(Color* in_color)
     //    4   5
     //  0   1
 
-    vertices.push_back(center.x - s); vertices.push_back(center.y - s); vertices.push_back(center.z + s); // 0 FL
-    vertices.push_back(center.x + s); vertices.push_back(center.y - s); vertices.push_back(center.z + s); // 1 FR
-    vertices.push_back(center.x + s); vertices.push_back(center.y + s); vertices.push_back(center.z + s); // 2 TR
-    vertices.push_back(center.x - s); vertices.push_back(center.y + s); vertices.push_back(center.z + s); // 3 TL
-    vertices.push_back(center.x - s); vertices.push_back(center.y - s); vertices.push_back(center.z - s); // 4 BL
-    vertices.push_back(center.x + s); vertices.push_back(center.y - s); vertices.push_back(center.z - s); // 5 BR
-    vertices.push_back(center.x + s); vertices.push_back(center.y + s); vertices.push_back(center.z - s); // 6 TR back
-    vertices.push_back(center.x - s); vertices.push_back(center.y + s); vertices.push_back(center.z - s); // 7 TL back
+    vertices.push_back(Point3(center.x - s, center.y - s, center.z + s)); // 0 FL
+    vertices.push_back(Point3(center.x + s, center.y - s, center.z + s)); // 1 FR
+    vertices.push_back(Point3(center.x + s, center.y + s, center.z + s)); // 2 TR
+    vertices.push_back(Point3(center.x - s, center.y + s, center.z + s)); // 3 TL
+    vertices.push_back(Point3(center.x - s, center.y - s, center.z - s)); // 4 BL
+    vertices.push_back(Point3(center.x + s, center.y - s, center.z - s)); // 5 BR
+    vertices.push_back(Point3(center.x + s, center.y + s, center.z - s)); // 6 TR back
+    vertices.push_back(Point3(center.x - s, center.y + s, center.z - s)); // 7 TL back
 
     // Front
     indices.push_back(0); indices.push_back(1); indices.push_back(2);
@@ -511,17 +531,19 @@ Cone::Cone(const unsigned int& in_points,
     Shape(), height(in_height), radius(in_radius), points(in_points)
 {
     create_cone(&base_color);
+    setup_edges(&base_color);
+    setup_points(&base_color);
+
+    init_buffers();
 }
 
-void Cone::add_edges(Color* in_color) 
+void Cone::setup_edges(Color* in_color) 
 {
-    has_edges = true;
     info_edges.push_back(IndicesInfo(1, points, GL_LINE_LOOP, NO_EBO, in_color));
 }
 
-void Cone::add_points(Color* in_color) 
+void Cone::setup_points(Color* in_color) 
 {
-    has_points = true;
     info_points.push_back(IndicesInfo(0, 1, GL_POINTS, NO_EBO, in_color));
 }
 
@@ -531,9 +553,7 @@ void Cone::create_cone(Color* in_color)
     float step = 360.0f / float(points);
 
     // Top
-    vertices.push_back(center.x);
-    vertices.push_back(center.y + h);
-    vertices.push_back(center.z);
+    vertices.push_back(Point3(center.x, center.y + h, center.z));
 
     // Base
     for (int i = 0; i <= points; i++)
@@ -541,13 +561,12 @@ void Cone::create_cone(Color* in_color)
         float ang = utils::ang_to_rad(i * step);
         float x = center.x + radius * std::cos(ang);
         float z = center.z + radius * std::sin(ang);
-        vertices.push_back(x); vertices.push_back(center.y - h); vertices.push_back(z);
+        vertices.push_back(Point3(x, center.y - h, z));
     }
 
     // Base center
-    vertices.push_back(center.x); vertices.push_back(center.y - h); vertices.push_back(center.z);
+    vertices.push_back(Point3(center.x, center.y - h, center.z));
     unsigned int center = points + 2;
-
     
     // Lateral
     for (unsigned int i = 1; i <= points; i++)
@@ -576,14 +595,16 @@ Sphere::Sphere(const unsigned int& in_points,
     Shape(), points(in_points), radius(in_radius)
 {
     create_sphere(&base_color);
+    setup_edges(&base_color);
+    setup_points(&base_color);
+
+    init_buffers();
 }
 
-void Sphere::add_edges(Color* in_color) 
+void Sphere::setup_edges(Color* in_color) 
 {
-    has_edges = true;
-
-    int n_vertices = vertices.size()/3;
-    int step = n_vertices / 6;
+    int v_count = vertices.size();
+    int step = v_count / 6;
 
     int start = 0;
     for (int i = 0; i < 5; i++)
@@ -592,15 +613,13 @@ void Sphere::add_edges(Color* in_color)
         start += step;
     }
 
-    info_edges.push_back(IndicesInfo(start, (n_vertices - start), GL_LINE_LOOP, NO_EBO, in_color));
+    info_edges.push_back(IndicesInfo(start, (v_count - start), GL_LINE_LOOP, NO_EBO, in_color));
 }
 
-void Sphere::add_points(Color* in_color) 
+void Sphere::setup_points(Color* in_color) 
 {
-    has_points = true;
-
-    int n_vertices = vertices.size()/3;
-    int step = n_vertices / 6;
+    int v_count = vertices.size();
+    int step = v_count / 6;
 
     int start = 0;
     for (int i = 0; i < 5; i++)
@@ -609,7 +628,7 @@ void Sphere::add_points(Color* in_color)
         start += step;
     }
 
-    info_points.push_back(IndicesInfo(start, (n_vertices - start), GL_POINTS, NO_EBO, in_color));
+    info_points.push_back(IndicesInfo(start, (v_count - start), GL_POINTS, NO_EBO, in_color));
 }
 
 void Sphere::create_sphere(Color* in_color)
@@ -633,9 +652,7 @@ void Sphere::create_sphere(Color* in_color)
             float y = (radius * cos_stack) * sin_sector;
             float z = radius * sin_stack;
 
-            vertices.push_back(x + center.x);
-            vertices.push_back(y + center.y);
-            vertices.push_back(z + center.z);
+            vertices.push_back(Point3(x + center.x, y + center.y, z + center.z));
         }
     }
 
