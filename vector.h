@@ -24,6 +24,16 @@ public:
     Vector3& operator = (const Vector3& other);
 };
 
+class Vector2
+{
+public:
+    float x, y;
+
+    Vector2(const float& in_x = 0.0f, const float& in_y = 0.0f);
+
+    Vector2& operator = (const Vector3& other);
+};
+
 Vector3 cross (const Vector3& v1, const Vector3& v2);
 
 float vec_length(const Vector3& in_vec);
@@ -31,5 +41,6 @@ float vec_length(const Vector3& in_vec);
 Vector3 normalize (const Vector3& in_vec);
 
 using Point3 = Vector3;
+using Point2 = Vector2;
 
 #endif

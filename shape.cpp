@@ -59,7 +59,6 @@ void Shape::draw(ShaderList& shaders, const Matrix_4& in_world)
             auto &color = face.color;
             shaders.set_vec3("UNIQUE", "color", color->r, color->g, color->b);
             
-            
             if (!face.uses_EBO)
                 glDrawArrays(face.draw_mode, face.start_indice, face.count);
             else
