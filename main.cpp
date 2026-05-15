@@ -11,7 +11,7 @@
 #include <thread>
 
 #include "utils.h"
-#include "shaderList.h"
+#include "shader_list.h"
 #include "animation_list.h"
 #include "shape.h"
 #include "matrix.h"

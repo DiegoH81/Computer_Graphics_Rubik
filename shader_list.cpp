@@ -1,7 +1,7 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
-#include "shaderList.h"
+#include "shader_list.h"
 
 ShaderList::ShaderList():
     VERTEX(0), shader_programs() {}

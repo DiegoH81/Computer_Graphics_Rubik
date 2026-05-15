@@ -10,7 +10,7 @@
 #include "utils.h"
 #include "indices_info.h"
 #include "vector.h"
-#include "shaderList.h"
+#include "shader_list.h"
 
 inline Color base_color(70, 130, 180, true);
 
