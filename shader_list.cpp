@@ -84,3 +84,17 @@ void ShaderList::set_float(const std::string& shader_name, const std::string& un
 
     glUniform1f(uniform, val);
 }
+
+void ShaderList::set_texture(const std::string& shader_name, const std::string& uniform_name, int slot)
+{
+    unsigned int current_program = shader_programs[shader_name];
+    int uniform = glGetUniformLocation(current_program, uniform_name.c_str());
+    glUniform1i(uniform, slot);
+}
+
+void ShaderList::set_bool(const std::string& shader_name, const std::string& uniform_name, bool in_bool)
+{
+    unsigned int current_program = shader_programs[shader_name];
+    int uniform = glGetUniformLocation(current_program, uniform_name.c_str());
+    glUniform1i(uniform, in_bool? 1 : 0);
+}

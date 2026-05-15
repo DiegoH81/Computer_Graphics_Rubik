@@ -19,7 +19,6 @@ class ShaderList
 public:
     ShaderList();
 
-
     void create_vertex_shader(const char *vertexShaderSource);
 
     void add_fragment_shader(const std::string& shader_name, const char *fragment_Shader_Source);
@@ -39,6 +38,10 @@ public:
     unsigned int get_cur_prog(const std::string& shader_name);
 
     void set_float(const std::string& shader_name, const std::string& uniform_name, float val);
+
+    void set_texture(const std::string& shader_name, const std::string& uniform_name, int slot);
+
+    void set_bool(const std::string& shader_name, const std::string& uniform_name, bool in_bool);
 
 private:
     unsigned int VERTEX;
