@@ -13,17 +13,13 @@
 #include "utils.h"
 #include "shader_list.h"
 #include "animation_list.h"
-#include "shape.h"
-#include "matrix.h"
 #include "camera.h"
-#include "scene.h"
-#include "vertex.h"
 #include "texture_list.h"
-
+#include "rubik_cube.h"
 
 float bgR = 0.0f, bgG = 0.0f, bgB = 0.0f;
 
-AnimationList animations, camera_animations;
+AnimationList camera_animations;
 std::vector<SceneNode*> nodes;
 
 float offset = 0.1f;
@@ -157,30 +153,7 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
             is_moving = !is_moving;
         else if ( key == GLFW_KEY_Z)
         {
-            
-            animations.add_animation({AnimationInfo(0, 180, "ROTATE_Z", "PUBLIC"),
-                                      AnimationInfo(1, 180, "ROTATE_C_Z", "PUBLIC")}, 1.0);
-            
-            animations.add_animation({AnimationInfo(0, -180, "ROTATE_Z", "PUBLIC"),
-                                      AnimationInfo(1, -180, "ROTATE_C_Z", "PUBLIC")}, 1.0);
-
-            animations.add_animation({AnimationInfo(2, 180, "ROTATE_C_Y", "PUBLIC"),
-                                      AnimationInfo(2, 180, "ROTATE_Y", "PUBLIC"),
-                                      AnimationInfo(3, 180, "ROTATE_C_Y", "PUBLIC"),
-                                      AnimationInfo(3, 180, "ROTATE_Y", "PUBLIC")}, 1.0);
-
-            animations.add_animation({AnimationInfo(2, -180, "ROTATE_C_Y", "PUBLIC"),
-                                      AnimationInfo(2, -180, "ROTATE_Y", "PUBLIC"),
-                                      AnimationInfo(3, -180, "ROTATE_C_Y", "PUBLIC"),
-                                      AnimationInfo(3, -180, "ROTATE_Y", "PUBLIC")}, 1.0);
-
-            animations.add_animation({AnimationInfo(4, 1.0, "SCALE_X", "PUBLIC"),
-                                     AnimationInfo(4, 1.0, "SCALE_Y", "PUBLIC"),
-                                     AnimationInfo(4, 1.0, "SCALE_Z", "PUBLIC")}, 1.0);
-                                
-            animations.add_animation({AnimationInfo(4, -1.0, "SCALE_X", "PUBLIC"),
-                                     AnimationInfo(4, -1.0, "SCALE_Y", "PUBLIC"),
-                                     AnimationInfo(4, -1.0, "SCALE_Z", "PUBLIC")}, 1.0);
+			
         }
         else if ( key == GLFW_KEY_V )
         {
@@ -256,84 +229,11 @@ int main()
 
     // Camera
     Camera camera;
-    camera.set_pos(Point3(0.0f, 0.0f, 2.0f));
+    camera.set_pos(Point3(0.0f, 0.0f, 4.0f));
     camera.set_objective(Point3(0.0f, 0.0f, 0.0f));
 
     // Figuras
-    std::vector<float> vertices;
-    std::vector<unsigned int> indices;
-
-    
-    Cube cubeUP(0.2);
-    cubeUP.add_faces(&golden);
-
-    Cube cubeDOWN(0.2);
-    cubeDOWN.add_faces(&lava);
-
-    Pyramid pyrLEFT(0.2, 0.1);
-    pyrLEFT.add_faces(&pink);
-
-   
-    Pyramid pyrRIGHT(0.2, 0.1);
-    pyrRIGHT.add_faces(&turquesa);
-
-    Sphere sph(40, 0.2f);
-    sph.add_faces(&le_lime);
-    sph.add_edges();
-    sph.add_points();
-
-
-    Cube hijoww(0.2);
-    hijoww.add_faces(&red);
-    hijoww.add_edges(&golden);
-    hijoww.add_points(&le_lime);
-
-	SceneNode root(-1);
-    root.traslate(Vector3(0.0, 0.0, 0.0f), true);
-
-     // Nodos
-    SceneNode cubeUN(0, &cubeUP);
-    cubeUN.traslate(Vector3(0.0f, 0.4, 0.0f), false);
-
-    SceneNode cubeDN(1, &cubeDOWN);
-    cubeDN.traslate(Vector3(0.0f, -0.4, 0.0f), false);
-
-    SceneNode pyrLN(2, &pyrLEFT);
-    pyrLN.traslate(Vector3(-0.4f, 0.0, 0.0f), true);
-    pyrLN.rotate_z_local(90, true);
-
-    SceneNode pyrRN(3, &pyrRIGHT);
-    pyrRN.traslate(Vector3(0.4f, 0.0, 0.0f), true);
-    pyrRN.rotate_z_local(-90, true);
-    
-    SceneNode hijowww(5, &hijoww);
-    hijowww.traslate(Vector3(0.0f, 0.2f, 0.0f), false);
-
-
-    SceneNode sphN(4, &sph);
-    
-    
-    
-    
-    root.add_children(&cubeDN);
-    root.add_children(&cubeUN);
-    root.add_children(&pyrLN);
-    root.add_children(&pyrRN);
-    root.add_children(&sphN);
-    
-    pyrLN.add_children(&hijowww);
-    
-
-    int v_count = 0;
-    int i_count = 0;	
-	
-
-    nodes.push_back(&cubeUN);
-    nodes.push_back(&cubeDN);
-    nodes.push_back(&pyrLN);
-    nodes.push_back(&pyrRN);
-    nodes.push_back(&sphN);
-    nodes.push_back(&hijowww);
+	Rubik cubito;
     
     // Bucle
 	glPointSize(10.0f);
@@ -343,11 +243,9 @@ int main()
 
     float delta_time = 0.0f;
     float last_frame = 0.0f;
-
-
+	
     shaders.use_shader("UNIQUE");
     shaders.set_bool("UNIQUE", "useTexture", false);
-    std::cout << "Size of vertex: " << sizeof(Vertex) << "\n";
     auto projection_matrix = get_perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
     shaders.set_mat4("UNIQUE", "projection", projection_matrix);
 
@@ -356,11 +254,6 @@ int main()
         float current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
-        if (is_moving)
-        {
-            animations.process_animations(nodes, delta_time);
-            camera_animations.process_animations_camera(camera, nodes, delta_time);
-        }
 
         glClearColor(bgR, bgG, bgB, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -374,13 +267,9 @@ int main()
         auto view_matrix = camera.get_look_at();
         shaders.set_mat4("UNIQUE", "view", view_matrix);
         
-        root.draw(shaders, Matrix_4());
-        /*
-        for (auto &s : nodes)
-        s->draw(shaders, Matrix_4());
-        */
-        
-        
+		
+		cubito.center->draw(shaders, Matrix_4());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
