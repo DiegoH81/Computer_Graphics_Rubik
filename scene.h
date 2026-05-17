@@ -19,7 +19,8 @@ public:
              private_transform;
 
     Matrix_4 parent_transform;
-
+	
+	std::vector<SceneNode*> children;
     Shape* shape;
     
     SceneNode(int in_id, Shape* in_shape = nullptr);
@@ -39,9 +40,6 @@ public:
     void rotate_y_local(float in_angle, bool is_public);
     void rotate_z_local(float in_angle, bool is_public);
     void scale(const Vector3& in_s, bool is_public);
-
-private:
-    std::vector<SceneNode*> children;
 };
 
 
