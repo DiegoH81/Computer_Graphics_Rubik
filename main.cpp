@@ -265,9 +265,6 @@ int main()
         shaders.set_mat4("UNIQUE", "view", view_matrix);
         
 		layer->rotate_y_local(50.0f * delta_time, true);
-		/* for(SceneNode* n: layer){
-			n->rotate_y_local(50.0f * delta_time, true);
-		} */
 		
 		cubito.center->draw(shaders, Matrix_4());
 
