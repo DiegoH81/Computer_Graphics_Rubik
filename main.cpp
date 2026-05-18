@@ -229,15 +229,15 @@ int main()
 
     // Camera
     Camera camera;
-    camera.set_pos(Point3(0.0f, 0.0f, 4.0f));
+    camera.set_pos(Point3(3.0f, 2.0f, 5.0f));
     camera.set_objective(Point3(0.0f, 0.0f, 0.0f));
 
     // Figuras
+	glLineWidth(10.0f);
+
 	Rubik cubito;
-    
     // Bucle
 	glPointSize(10.0f);
-	glLineWidth(5.0f);
 	
     glEnable(GL_DEPTH_TEST);
 
@@ -255,19 +255,12 @@ int main()
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
-        glClearColor(bgR, bgG, bgB, 1.0f);
+        glClearColor(0.137f, 0.137f, 0.122f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        
-    
-
-
-        //camera.set_objective(sphA.center);
 
         auto view_matrix = camera.get_look_at();
         shaders.set_mat4("UNIQUE", "view", view_matrix);
         
-		
 		cubito.center->draw(shaders, Matrix_4());
 
         glfwSwapBuffers(window);

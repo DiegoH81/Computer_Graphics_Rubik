@@ -10,6 +10,7 @@
 #include "scene.h"
 #include "vertex.h"
 #include "texture_list.h"
+#include "color.h"
 
 class Rubik
 {
