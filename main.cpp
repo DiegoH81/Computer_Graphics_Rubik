@@ -237,7 +237,8 @@ int main()
 
 	Rubik cubito;
 	
-	SceneNode* layer = cubito.find_layer(0,0.5,0,false,true,false);
+	//SceneNode* layer = cubito.find_layer(0,0.5,0,false,true,false);
+	SceneNode* layer = cubito.find_layer(0,0.5,0,false,false,true);
 	
     // Bucle
 	glPointSize(10.0f);
@@ -264,7 +265,8 @@ int main()
         auto view_matrix = camera.get_look_at();
         shaders.set_mat4("UNIQUE", "view", view_matrix);
         
-		layer->rotate_y_local(50.0f * delta_time, true);
+		//layer->rotate_y_local(50.0f * delta_time, true);
+		layer->rotate_z_local(50.0f * delta_time, true);
 		
 		cubito.center->draw(shaders, Matrix_4());
 
