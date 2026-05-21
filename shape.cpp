@@ -63,16 +63,18 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
 
     if (has_faces)
     {
-        if (uses_texture)
-        {
-            in_textures.use_texture("Dirt", 0);
-            shaders.set_texture("UNIQUE", "ourTexture", 0);
-        }
-
         for (auto &face: info_faces)
         {
-            auto &color = face.color;
-            shaders.set_vec3("UNIQUE", "color", color->r, color->g, color->b);
+            if (uses_texture)
+            {
+                in_textures.use_texture(face.texture_name, 0);
+                shaders.set_texture("UNIQUE", "ourTexture", 0);
+            }
+            else
+            {
+                auto &color = face.color;
+                shaders.set_vec3("UNIQUE", "color", color->r, color->g, color->b);
+            }
             
             if (!face.uses_EBO)
                 glDrawArrays(face.draw_mode, face.start_indice, face.count);
@@ -152,6 +154,19 @@ void Shape::set_point_color(int in_id, Color* in_color)
     info_points[in_id].color = in_color;
 }
 
+void Shape::set_textures(int in_id, std::string in_texture)
+{
+    if (in_id == ALL_IDs)
+    {
+        for (auto &p : info_faces)
+            p.texture_name = in_texture;
+        return;
+    }
+    if (in_id < 0 || in_id >= info_faces.size() || in_texture.empty())
+        return;
+    info_faces[in_id].texture_name = in_texture;
+}
+
 void Shape::add_edges(Color *in_color)
 {
     has_edges = true;
@@ -171,6 +186,13 @@ void Shape::add_faces(Color *in_color)
     has_faces = true;
     for (auto &f : info_faces)
         f.color = in_color;
+}
+
+void Shape::add_textures(const std::string in_texture)
+{
+    uses_texture = true;
+    for (auto &f : info_faces)
+        f.texture_name = in_texture;
 }
 
 void Shape::setup_edges(Color *in_color)

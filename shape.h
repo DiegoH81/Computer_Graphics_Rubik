@@ -15,6 +15,7 @@
 #include "texture_list.h"
 
 inline Color base_color(70, 130, 180, true);
+inline std::string base_texture = "NO_TEXTURE";
 
 class Shape
 {
@@ -41,10 +42,12 @@ public:
     void set_face_color(int in_id, Color* in_color);
     void set_edge_color(int in_id, Color* in_color);
     void set_point_color(int in_id, Color* in_color);
+    void set_textures(int in_id, std::string in_texture);
 
     void add_edges(Color *in_color = &base_color);
     void add_points(Color *in_color = &base_color);
     void add_faces(Color *in_color = &base_color);
+    void add_textures(const std::string in_texture = base_texture);
 protected:
     virtual void setup_edges(Color *in_color = &base_color);
     virtual void setup_points(Color *in_color = &base_color);
