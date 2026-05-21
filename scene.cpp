@@ -6,14 +6,14 @@ SceneNode::SceneNode(int in_id, Shape* in_shape) :
     parent_transform()
 { }
 
-void SceneNode::draw(ShaderList& shaders, const Matrix_4& in_parent)
+void SceneNode::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& in_parent)
 {
     parent_transform = in_parent;
     if (shape)
-        shape->draw(shaders, parent_transform * private_transform);
+        shape->draw(shaders, in_textures, parent_transform * private_transform);
     
     for (auto &child : children)
-        child->draw(shaders, parent_transform * public_transform);
+        child->draw(shaders, in_textures, parent_transform * public_transform);
 }
 
 Point3 SceneNode::get_center()

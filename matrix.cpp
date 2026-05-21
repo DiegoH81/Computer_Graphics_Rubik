@@ -87,9 +87,9 @@ void Matrix_4::traslate(const Vector3& in_m)
 {
     Matrix_4 mat;
     mat.set_matrix({ 1, 0, 0, in_m.x,
-                        0, 1, 0, in_m.y,
-                        0, 0, 1, in_m.z,
-                        0, 0, 0,      1 });
+                    0, 1, 0, in_m.y,
+                    0, 0, 1, in_m.z,
+                    0, 0, 0,      1 });
 
     *this = mat * (*this);
 }

@@ -130,9 +130,9 @@ Matrix_4 Camera::get_look_at()
     Matrix_4 traslate_camera;
 
     all_vecs_camera.set_matrix({ v.x,  v.y,  v.z, 0.0f,
-                                    u.x,  u.y,  u.z, 0.0f,
-                                    w.x,  w.y,  w.z, 0.0f,
-                                0.0f, 0.0f, 0.0f, 1.0f});
+                                 u.x,  u.y,  u.z, 0.0f,
+                                 w.x,  w.y,  w.z, 0.0f,
+                                 0.0f, 0.0f, 0.0f, 1.0f});
 
     traslate_camera.set_matrix({1.0f, 0.0f, 0.0f, -pos.x,
                                 0.0f, 1.0f, 0.0f, -pos.y,

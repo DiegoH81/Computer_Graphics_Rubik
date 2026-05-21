@@ -108,7 +108,6 @@ void AnimationList::process_animations_camera(Camera& in_camera, std::vector<Sce
             if (node->id != t.id)
                 continue;
             
-
             if (type == "FOLLOW")
                 in_camera.set_objective(node->get_center());
             else if (type == "ORBIT_X")
