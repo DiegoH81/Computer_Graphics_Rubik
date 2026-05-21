@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Computer_Graphics_Final_Project
-=======
 # Computer_Graphics_Final_Project
 **Integrantes:**
 - Cornejo Castro, José Gabriel
@@ -9,4 +6,3 @@
 
 ## Rubik cube
 ![Rubik Image](repo_img/cube.png)
->>>>>>> origin/develop
