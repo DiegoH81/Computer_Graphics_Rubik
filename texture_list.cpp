@@ -26,7 +26,15 @@ void TextureList::add_texture(const std::string& texture_name, const std::string
     int width, height, nrChannels;
     unsigned char *data = stbi_load(texture_path.c_str(), &width, &height, &nrChannels, 0);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    printf("Loading texture from: %s\n", texture_path.c_str());
+    if (!data)
+    {
+        printf("STB error: %s\n", stbi_failure_reason());
+        return;
+    }
+
+    GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(data);
@@ -36,7 +44,7 @@ void TextureList::add_texture(const std::string& texture_name, const std::string
 
 void TextureList::use_texture(const std::string& texture_name, int slot)
 {
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0 + slot);
     if (textures.find(texture_name) != textures.end())
     {
         unsigned int texture = textures[texture_name];

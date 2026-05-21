@@ -232,6 +232,8 @@ int main()
     camera.set_pos(Point3(3.0f, 2.0f, 5.0f));
     camera.set_objective(Point3(0.0f, 0.0f, 0.0f));
 
+
+
     // Figuras
 	glLineWidth(10.0f);
 
@@ -249,7 +251,6 @@ int main()
     float last_frame = 0.0f;
 	
     shaders.use_shader("UNIQUE");
-    shaders.set_bool("UNIQUE", "useTexture", false);
     auto projection_matrix = get_perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
     shaders.set_mat4("UNIQUE", "projection", projection_matrix);
 
@@ -268,7 +269,7 @@ int main()
 		//layer->rotate_y_local(50.0f * delta_time, true);
 		layer->rotate_z_local(50.0f * delta_time, true);
 		
-		cubito.center->draw(shaders, Matrix_4());
+		cubito.draw(shaders);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

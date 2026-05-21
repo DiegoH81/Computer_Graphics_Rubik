@@ -25,7 +25,7 @@ public:
     
     SceneNode(int in_id, Shape* in_shape = nullptr);
 
-    void draw(ShaderList& shaders, const Matrix_4& in_parent);
+    void draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& in_parent);
 
     Point3 get_center();
 

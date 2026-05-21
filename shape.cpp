@@ -11,7 +11,8 @@ Shape::Shape():
 
     has_faces(false),
     has_edges(false),
-    has_points(false)
+    has_points(false),
+    uses_texture(false)
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -43,7 +44,7 @@ void Shape::init_buffers()
     glEnableVertexAttribArray(1);
 
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(2);
     
 
     // Unbind
@@ -52,14 +53,22 @@ void Shape::init_buffers()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Shape::draw(ShaderList& shaders, const Matrix_4& in_world)
+void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& in_world)
 {
     glBindVertexArray(VAO);
 
     shaders.set_mat4("UNIQUE", "model", in_world);
-    
+    shaders.set_bool("UNIQUE", "useTexture", uses_texture);
+
+
     if (has_faces)
     {
+        if (uses_texture)
+        {
+            in_textures.use_texture("Dirt", 0);
+            shaders.set_texture("UNIQUE", "ourTexture", 0);
+        }
+
         for (auto &face: info_faces)
         {
             auto &color = face.color;
@@ -110,6 +119,7 @@ void Shape::set_face_color(int in_id, Color* in_color)
             f.color = in_color;
         return;
     }
+
     if (in_id < 0 || in_id >= info_faces.size() || in_color == nullptr)
         return;
     
@@ -483,14 +493,45 @@ void Cube::create_cube(Color* in_color)
     //    4   5
     //  0   1
 
-    vertices.push_back(Point3(center.x - s, center.y - s, center.z + s)); // 0 FL
-    vertices.push_back(Point3(center.x + s, center.y - s, center.z + s)); // 1 FR
-    vertices.push_back(Point3(center.x + s, center.y + s, center.z + s)); // 2 TR
-    vertices.push_back(Point3(center.x - s, center.y + s, center.z + s)); // 3 TL
-    vertices.push_back(Point3(center.x - s, center.y - s, center.z - s)); // 4 BL
-    vertices.push_back(Point3(center.x + s, center.y - s, center.z - s)); // 5 BR
-    vertices.push_back(Point3(center.x + s, center.y + s, center.z - s)); // 6 TR back
-    vertices.push_back(Point3(center.x - s, center.y + s, center.z - s)); // 7 TL back
+    // Front
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(), Point2(0, 0))); // 0 FL
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(), Point2(1, 0))); // 1 FR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(), Point2(1, 1))); // 2 TR
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(), Point2(0, 1))); // 3 TL
+
+    // Back
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(), Point2(0, 0))); // 4 BL
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(), Point2(1, 0))); // 5 BR
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(), Point2(1, 1))); // 7 TL back
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(), Point2(0, 1))); // 6 TR back
+
+    // Left
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(), Point2(0, 0))); // 4 BL
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(), Point2(1, 0))); // 0 FL
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(), Point2(1, 1))); // 3 TL
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(), Point2(0, 1))); // 7 TL back
+
+    // Right
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(), Point2(0, 0))); // 1 FR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(), Point2(1, 0))); // 5 BR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(), Point2(1, 1))); // 6 TR back
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(), Point2(0, 1))); // 2 TR
+
+    // Top
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(), Point2(0, 0))); // 3 TL
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(), Point2(1, 0))); // 2 TR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(), Point2(1, 1))); // 6 TR back
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(), Point2(0, 1))); // 7 TL back
+
+    // Down
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(), Point2(0, 0))); // 0 FL
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(), Point2(1, 0))); // 1 FR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(), Point2(1, 1))); // 5 BR
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(), Point2(0, 1))); // 4 BL
+
+
+
+    // INDICES
 
     // Front
     indices.push_back(0); indices.push_back(1); indices.push_back(2);
@@ -498,28 +539,28 @@ void Cube::create_cube(Color* in_color)
     info_faces.push_back(IndicesInfo(0, 6, GL_TRIANGLES, YES_EBO, in_color));
 
     // Back
-    indices.push_back(5); indices.push_back(4); indices.push_back(7);
-    indices.push_back(5); indices.push_back(7); indices.push_back(6);
+    indices.push_back(4); indices.push_back(5); indices.push_back(6);
+    indices.push_back(4); indices.push_back(6); indices.push_back(7);
     info_faces.push_back(IndicesInfo(6, 6, GL_TRIANGLES, YES_EBO, in_color));
 
     // Left
-    indices.push_back(4); indices.push_back(0); indices.push_back(3);
-    indices.push_back(4); indices.push_back(3); indices.push_back(7);
+    indices.push_back(8); indices.push_back(9); indices.push_back(10);
+    indices.push_back(8); indices.push_back(10); indices.push_back(11);
     info_faces.push_back(IndicesInfo(12, 6, GL_TRIANGLES, YES_EBO, in_color));
 
     // Right
-    indices.push_back(1); indices.push_back(5); indices.push_back(6);
-    indices.push_back(1); indices.push_back(6); indices.push_back(2);
+    indices.push_back(12); indices.push_back(13); indices.push_back(14);
+    indices.push_back(12); indices.push_back(14); indices.push_back(15);
     info_faces.push_back(IndicesInfo(18, 6, GL_TRIANGLES, YES_EBO, in_color));
 
     // Top
-    indices.push_back(3); indices.push_back(2); indices.push_back(6);
-    indices.push_back(3); indices.push_back(6); indices.push_back(7);
+    indices.push_back(16); indices.push_back(17); indices.push_back(18);
+    indices.push_back(16); indices.push_back(18); indices.push_back(19);
     info_faces.push_back(IndicesInfo(24, 6, GL_TRIANGLES, YES_EBO, in_color));
 
     // Bottom
-    indices.push_back(4); indices.push_back(5); indices.push_back(1);
-    indices.push_back(4); indices.push_back(1); indices.push_back(0);
+    indices.push_back(20); indices.push_back(21); indices.push_back(22);
+    indices.push_back(20); indices.push_back(22); indices.push_back(23);
     info_faces.push_back(IndicesInfo(30, 6, GL_TRIANGLES, YES_EBO, in_color));
 }
 
