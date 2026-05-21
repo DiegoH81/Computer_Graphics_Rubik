@@ -4,6 +4,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <iostream>
+#include <filesystem>
+
 #include "texture_list.h"
 
 TextureList::TextureList():
@@ -12,6 +15,11 @@ TextureList::TextureList():
 
 void TextureList::add_texture(const std::string& texture_name, const std::string& texture_path)
 {
+    std::filesystem::path current_path = std::filesystem::current_path();
+	current_path = current_path.parent_path();
+    current_path = current_path / "ownProjects" / "rubik" / "textures" / texture_path;
+    //std::cout << "Ruta actual: "<< current_path << "\n";
+
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -24,12 +32,12 @@ void TextureList::add_texture(const std::string& texture_name, const std::string
 
     // Load image
     int width, height, nrChannels;
-    unsigned char *data = stbi_load(texture_path.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(current_path.string().c_str(), &width, &height, &nrChannels, 0);
 
-    printf("Loading texture from: %s\n", texture_path.c_str());
+    std::cout << "Loading textures from: " << current_path << "\n";
     if (!data)
     {
-        printf("STB error: %s\n", stbi_failure_reason());
+        std::cout << "STB error: " << stbi_failure_reason() << "\n";
         return;
     }
 

@@ -18,6 +18,7 @@
 #include "rubik_cube.h"
 
 float bgR = 0.0f, bgG = 0.0f, bgB = 0.0f;
+Camera camera_world;
 
 AnimationList camera_animations;
 std::vector<SceneNode*> nodes;
@@ -69,7 +70,7 @@ void traslate(const Vector3& in_m)
 		if (m_i->id != current_id)
 			continue;
 		
-        m_i->traslate(in_m, false);
+        m_i->traslate(in_m, true);
     }
 }
 
@@ -80,7 +81,7 @@ void scale(float factor)
 		if (m_i->id != current_id)
 			continue;
 
-		m_i->scale(Vector3(factor, factor, factor), false);
+		m_i->scale(Vector3(factor, factor, factor), true);
 	}
 }
 
@@ -90,7 +91,7 @@ void rotate_c_x(float angle)
     {
 		if (m_i->id != current_id)
 			continue;
-        m_i->rotate_x_local(angle, false);
+        m_i->rotate_x_local(angle, true);
     }
 }
 
@@ -100,7 +101,7 @@ void rotate_c_y(float angle)
     {
 		if (m_i->id != current_id)
 			continue;
-        m_i->rotate_y_local(angle, false);
+        m_i->rotate_y_local(angle, true);
     }
 }
 
@@ -110,7 +111,7 @@ void rotate_c_z(float angle)
     {
 		if (m_i->id != current_id)
 			continue;
-        m_i->rotate_z_local(angle, false);
+        m_i->rotate_z_local(angle, true);
     }
 }
 
@@ -151,13 +152,9 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
             scale(1.0f + -offset);
         else if ( key == GLFW_KEY_T)
             is_moving = !is_moving;
-        else if ( key == GLFW_KEY_Z)
-        {
-			
-        }
         else if ( key == GLFW_KEY_V )
         {
-            camera_animations.add_animation({AnimationInfo(2, 0, "FOLLOW", "")}, 6.0);
+            camera_animations.add_animation({AnimationInfo(0, 360, "ORBIT_X", "")}, 6.0);
         }
         else if ( key == GLFW_KEY_LEFT )
         {
@@ -228,19 +225,17 @@ int main()
     Color white(255.0f, 255.0f, 255.0f, true);
 
     // Camera
-    Camera camera;
-    camera.set_pos(Point3(3.0f, 2.0f, 5.0f));
-    camera.set_objective(Point3(0.0f, 0.0f, 0.0f));
-
+    camera_world.set_pos(Point3(3.0f, 2.0f, 5.0f));
+    camera_world.set_objective(Point3(0.0f, 0.0f, 0.0f));
 
 
     // Figuras
 	glLineWidth(10.0f);
 
 	Rubik cubito;
-	
+	nodes.push_back(cubito.center);
 	//SceneNode* layer = cubito.find_layer(0,0.5,0,false,true,false);
-	SceneNode* layer = cubito.find_layer(0,0.5,0,false,false,true);
+	SceneNode* layer = cubito.find_layer(0, 0.5, 0, false ,false ,true);
 	
     // Bucle
 	glPointSize(10.0f);
@@ -256,6 +251,8 @@ int main()
 
     while(!glfwWindowShouldClose(window))
     {
+        camera_animations.process_animations_camera(camera_world, nodes, delta_time);
+
         float current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
@@ -263,7 +260,7 @@ int main()
         glClearColor(0.137f, 0.137f, 0.122f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        auto view_matrix = camera.get_look_at();
+        auto view_matrix = camera_world.get_look_at();
         shaders.set_mat4("UNIQUE", "view", view_matrix);
         
 		//layer->rotate_y_local(50.0f * delta_time, true);

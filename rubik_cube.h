@@ -5,7 +5,6 @@
 
 #include "shape.h"
 #include "shader_list.h"
-#include "shape.h"
 #include "matrix.h"
 #include "scene.h"
 #include "vertex.h"
