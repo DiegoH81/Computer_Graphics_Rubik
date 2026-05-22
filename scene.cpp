@@ -26,6 +26,16 @@ Point3 SceneNode::get_center()
     return to_return;
 }
 
+Point3 SceneNode::get_center_local()
+{
+    Point3 to_return;
+
+    if (shape)
+        to_return = private_transform * shape->center;
+
+    return to_return;
+}
+
 void SceneNode::add_children(SceneNode* in_children)
 {
     children.push_back(in_children);

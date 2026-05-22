@@ -59,9 +59,11 @@ Rubik::Rubik(const float& in_animation_time):
         for (auto &y: possible_moves)
             for (auto &x: possible_moves)
             {
+				if(x != 0 && y != 0 && z != 0)
+					continue;
+				
                 Shape* cube = center->children[cur_idx]->shape;
                 center->children[cur_idx]->traslate(Vector3(x, y, z), true);
-                
 
                 if (x == 0.5f)
                     cube->set_textures(3, "Red");
@@ -112,8 +114,8 @@ void Rubik::find_layer(float value, char axis)
 		if(child == pivot)
             continue;
 
-		Point3 centerPos = center->get_center();
-		Point3 childPos = child->get_center();
+		Point3 centerPos = center->get_center_local();
+		Point3 childPos = child->get_center_local();
 		Point3 relativePos = childPos - centerPos;
 
 		if((!x_use || error(relativePos.x, value)) && (!y_use || error(relativePos.y, value)) && (!z_use || error(relativePos.z, value)))
