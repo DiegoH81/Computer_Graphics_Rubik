@@ -40,6 +40,9 @@ private:
     void execute_move(int dir, float pos, char axis, int dir_sign, bool is_stacking);
     void find_layer(float value, char axis);
 	void destroy_temp_pivot();
+	char get_colors(std::string& color);
+    int get_index();
+    void cube_state(char white[9], char yellow[9], char blue[9], char red[9], char green[9], char orange[9]));
 };
 
 #endif

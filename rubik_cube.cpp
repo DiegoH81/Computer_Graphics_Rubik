@@ -277,3 +277,48 @@ void Rubik::execute_move(int dir, float pos, char axis, int dir_sign, bool is_st
     std::string type = "ROTATE_" + std::string(1, axis);
     animations.add_animation({AnimationInfo(-1, dir * dir_sign* 90, type, "PUBLIC")}, time);
 }
+char Rubik::get_colors(std::string& color)
+{
+    if (color == "Yellow")
+        return 'Y';
+    if (color == "Blue")
+        return 'B';
+    if (color == "Red")
+        return 'R';
+    if (color == "Green")
+        return 'G';
+    if (color == "White")
+        return 'W';
+    if (color == "Orange")
+        return 'O';
+}
+
+int Rubik::get_index()
+{
+}
+
+void Rubik::cube_state(char white[9], char yellow[9], char blue[9], char red[9], char green[9], char orange[9])
+{
+    for (auto child : center->children)
+    {
+        if (!child->shape)
+            continue;
+
+        Point3 pos = child->get_center();
+        std::vector<IndicesInfo>& faces = child->shape->info_faces;
+
+
+        if (pos.y == 0.5f)
+            white[get_index] = get_colors(faces[4].texture_name)
+        if (pos.y == -0.5f)
+            yellow[get_index] = get_colors(faces[5].texture_name)
+        if (pos.x == 0.5f)
+            red[get_index] = get_colors(faces[3].texture_name)
+        if (pos.x == -0.5f)
+            orange[get_index] = get_colors(faces[2].texture_name)
+        if (pos.z == 0.5f)
+            blue[get_index] = get_colors(faces[0].texture_name)
+        if (pos.z == -0.5f)
+            green[get_index] = get_colors(faces[1].texture_name)
+    }
+}
