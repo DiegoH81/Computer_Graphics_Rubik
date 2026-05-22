@@ -24,7 +24,7 @@ void AnimationList::add_animation(const std::vector<AnimationInfo>& animation_se
     animation_queue.push(AnimationBlock(transformations, seconds));
 }
 
-void AnimationList::process_animations(std::vector<SceneNode*>& in_info, const float& in_delta_time)
+void AnimationList::process_animations(const std::vector<SceneNode*>& in_info, const float& in_delta_time)
 {
     if (animation_queue.empty()) return;
 

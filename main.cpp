@@ -17,7 +17,8 @@
 #include "texture_list.h"
 #include "rubik_cube.h"
 
-float bgR = 0.0f, bgG = 0.0f, bgB = 0.0f;
+
+Color background_color(205, 208, 255, true);
 Camera camera_world;
 
 AnimationList camera_animations;
@@ -122,6 +123,7 @@ void frame_buffer_size_call_back(GLFWwindow* in_window, int in_w, int in_h)
 
 void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, int mods)
 {
+    Rubik* cubito = static_cast<Rubik*>(glfwGetWindowUserPointer(in_window));
     if (action == GLFW_PRESS || action == GLFW_REPEAT)
     {
         if (key ==GLFW_KEY_ESCAPE)
@@ -134,6 +136,18 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
             traslate(Vector3(0.0f, offset, 0.0f));
         else if ( key == GLFW_KEY_S)
             traslate(Vector3(0.0f, -offset, 0.0f));
+        else if ( key == GLFW_KEY_1)
+            cubito->move(1, "U");
+        else if ( key == GLFW_KEY_2)
+            cubito->move(1, "D");
+        else if ( key == GLFW_KEY_3)
+            cubito->move(1, "R");
+        else if ( key == GLFW_KEY_4)
+            cubito->move(1, "L");
+        else if ( key == GLFW_KEY_5)
+            cubito->move(1, "F");
+        else if ( key == GLFW_KEY_6)
+            cubito->move(1, "B");
         else if ( key == GLFW_KEY_I)
             rotate_c_x(angle);
         else if ( key == GLFW_KEY_O)
@@ -225,21 +239,23 @@ int main()
     Color white(255.0f, 255.0f, 255.0f, true);
 
     // Camera
-    camera_world.set_pos(Point3(3.0f, 2.0f, 5.0f));
+    camera_world.set_pos(Point3(1.5f, 1.5f, 5.0f));
     camera_world.set_objective(Point3(0.0f, 0.0f, 0.0f));
 
 
     // Figuras
 	glLineWidth(10.0f);
 
-	Rubik cubito;
-	nodes.push_back(cubito.center);
-	//SceneNode* layer = cubito.find_layer(0,0.5,0,false,true,false);
-	SceneNode* layer = cubito.find_layer(0, 0.5, 0, false ,false ,true);
+	Rubik cubito(0.4f);
+
+    cubito.scramble(21);
+	nodes.push_back(cubito.get_center());
+
+    glfwSetWindowUserPointer(window, &cubito);
 	
     // Bucle
 	glPointSize(10.0f);
-	
+
     glEnable(GL_DEPTH_TEST);
 
     float delta_time = 0.0f;
@@ -252,19 +268,21 @@ int main()
     while(!glfwWindowShouldClose(window))
     {
         camera_animations.process_animations_camera(camera_world, nodes, delta_time);
+        cubito.process_animation(delta_time);
 
         float current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
-        glClearColor(0.137f, 0.137f, 0.122f, 1.0f);
+        glClearColor(background_color.r, background_color.g, background_color.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         auto view_matrix = camera_world.get_look_at();
         shaders.set_mat4("UNIQUE", "view", view_matrix);
         
 		//layer->rotate_y_local(50.0f * delta_time, true);
-		layer->rotate_z_local(50.0f * delta_time, true);
+		//cubito.pivot->rotate_y_local(50.0f * delta_time, true);
+
 		
 		cubito.draw(shaders);
 

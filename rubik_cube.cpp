@@ -17,7 +17,8 @@ bool error(float a, float b)
 	return std::abs(a-b) < 0.05f;
 }
 
-Rubik::Rubik()
+Rubik::Rubik(const float& in_animation_time):
+	animations(), pivot(nullptr), is_animating(false), animation_time(in_animation_time), layer_queue()
 {
     center = new SceneNode(0);
     center->traslate(Vector3(0.0, 0.0, 0.0f), true);
@@ -96,9 +97,13 @@ Rubik::Rubik()
             }
 }
 
-SceneNode* Rubik::find_layer(float x, float y, float z, bool x_use, bool y_use, bool z_use)
+void Rubik::find_layer(float value, char axis)
 {
-	SceneNode* pivot = new SceneNode(-1,nullptr);
+    bool x_use = (axis == 'X' ? true : false);
+    bool y_use = (axis == 'Y' ? true : false);
+    bool z_use = (axis == 'Z' ? true : false);
+
+	pivot = new SceneNode(-1,nullptr);
 	center->add_children(pivot);
 	
 	std::vector<SceneNode*> cubes;
@@ -111,9 +116,7 @@ SceneNode* Rubik::find_layer(float x, float y, float z, bool x_use, bool y_use, 
 		Point3 childPos = child->get_center();
 		Point3 relativePos = childPos - centerPos;
 
-        
-
-		if((!x_use || error(relativePos.x, x)) && (!y_use || error(relativePos.y, y)) && (!z_use || error(relativePos.z, z)))
+		if((!x_use || error(relativePos.x, value)) && (!y_use || error(relativePos.y, value)) && (!z_use || error(relativePos.z, value)))
 			cubes.push_back(child);
 
 	}
@@ -129,17 +132,18 @@ SceneNode* Rubik::find_layer(float x, float y, float z, bool x_use, bool y_use, 
 		}
 		pivot->add_children(cube);
 	}
-	
-	return pivot;
 }
 
-
-void Rubik::destroy_temp_pivot(SceneNode* pivot)
+void Rubik::destroy_temp_pivot()
 {
+    Matrix_4 rounded = pivot->public_transform;
+    for (int i = 0; i < 16; i++)
+        rounded.matrix[i] = std::round(rounded.matrix[i]);
+
 	for(auto cube : pivot->children)
     {
-		cube->private_transform = pivot->public_transform * cube->private_transform;
-		cube->public_transform = pivot->public_transform * cube->public_transform;
+		cube->private_transform = rounded * cube->private_transform;
+		cube->public_transform = rounded * cube->public_transform;
 
 		center->add_children(cube);
 	}
@@ -159,9 +163,117 @@ void Rubik::destroy_temp_pivot(SceneNode* pivot)
 	}
 
 	delete pivot;
+    pivot = nullptr;
 }
 
 void Rubik::draw(ShaderList& shaders)
 {
     center->draw(shaders, textures, Matrix_4());
+}
+
+void Rubik::move(int dir, std::string move_cmd, bool is_stacking)
+{
+    if (move_cmd == "U")
+        execute_move(dir, 0.5f, 'Y', -1, is_stacking);
+    else if (move_cmd == "U2")
+    {
+        execute_move(dir, 0.5f, 'Y', -1, is_stacking);
+        execute_move(dir, 0.5f, 'Y', -1, is_stacking);
+    }
+    else if (move_cmd == "D")
+        execute_move(dir, -0.5f, 'Y', 1, is_stacking);
+    else if (move_cmd == "D2")
+    {
+        execute_move(dir, -0.5f, 'Y', 1, is_stacking);
+        execute_move(dir, -0.5f, 'Y', 1, is_stacking);
+    }
+    else if (move_cmd == "R")
+        execute_move(dir, 0.5f, 'X', -1, is_stacking);
+    else if (move_cmd == "R2")
+    {
+        execute_move(dir, 0.5f, 'X', -1, is_stacking);
+        execute_move(dir, 0.5f, 'X', -1, is_stacking);
+    }
+    else if (move_cmd == "L")
+        execute_move(dir, -0.5f, 'X', 1, is_stacking);
+    else if (move_cmd == "L2")
+    {
+        execute_move(dir, -0.5f, 'X', 1, is_stacking);
+        execute_move(dir, -0.5f, 'X', 1, is_stacking);
+    }
+    else if (move_cmd == "F")
+        execute_move(dir, 0.5f, 'Z', -1, is_stacking);
+    else if (move_cmd == "F2")
+    {
+        execute_move(dir, 0.5f, 'Z', -1, is_stacking);
+        execute_move(dir, 0.5f, 'Z', -1, is_stacking);
+    }
+    else if (move_cmd == "B")
+        execute_move(dir, -0.5f, 'Z', 1, is_stacking);
+    else if (move_cmd == "B2")
+    {
+        execute_move(dir, -0.5f, 'Z', 1, is_stacking);
+        execute_move(dir, -0.5f, 'Z', 1, is_stacking);
+    }
+}
+
+void Rubik::process_animation(const float& in_delta)
+{
+    if (animations.animation_queue.empty())
+        return;
+
+    if (!is_animating) // Change layer
+    {
+        auto top = layer_queue.front();
+        find_layer(top.first, top.second);
+
+        layer_queue.pop();
+        is_animating = true;
+    }
+
+    
+    int prev_size = animations.animation_queue.size();
+    animations.process_animations({pivot}, in_delta);
+    int new_size = animations.animation_queue.size();
+
+    if (prev_size != new_size)
+    {
+        destroy_temp_pivot();
+        is_animating = false;
+    }
+}
+
+void Rubik::scramble(int moves)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_int_distribution<int> distribucion_move(0, 11);
+    std::uniform_int_distribution<int> distribucion_prime(0, 1);
+    std::vector<std::string> possible_moves = {"U", "U2", "D", "D2", "R", "R2", "L", "L2", "F", "F2", "B", "B2"};
+
+    for (int i = 0; i < moves; i++)
+    {
+        int random_move = distribucion_move(gen);
+        int dir = (distribucion_prime(gen))? 1 : -1;
+
+        move(dir, possible_moves[random_move], true);
+    }
+}
+
+SceneNode* Rubik::get_center()
+{
+    return center;
+}
+
+void Rubik::execute_move(int dir, float pos, char axis, int dir_sign, bool is_stacking)
+{
+    if (!animations.animation_queue.empty() && !is_stacking)
+        return;
+    
+    layer_queue.push({pos, axis});
+    float time = (is_stacking? animation_time / 2.0f : animation_time);
+
+    std::string type = "ROTATE_" + std::string(1, axis);
+    animations.add_animation({AnimationInfo(-1, dir * dir_sign* 90, type, "PUBLIC")}, time);
 }
