@@ -2,6 +2,8 @@
 #define RUBIK_CUBE_H
 
 #include <vector>
+#include <queue>
+#include <random>
 
 #include "shape.h"
 #include "shader_list.h"
@@ -11,21 +13,33 @@
 #include "texture_list.h"
 #include "color.h"
 
-
 #include <algorithm>
+#include "animation_list.h"
+
+
 
 class Rubik
 {
 public:
-	std::vector<Cube*> cubes;
-	SceneNode* center;
-    TextureList textures;
-	
-	Rubik();
-	SceneNode* find_layer(float x, float y, float z, bool x_use = true, bool y_use = true, bool z_use = true);
-	void destroy_temp_pivot(SceneNode* pivot);
+	Rubik(const float &in_animation_time);
+	void draw(ShaderList& shaders);
+    void move(int dir, std::string move_cmd, bool is_stacking = false);
+	void process_animation(const float& in_delta);
+    void scramble(int moves);
+    SceneNode* get_center();
 
-    void draw(ShaderList& shaders);
+private:
+    std::vector<Cube*> cubes;
+    std::queue<std::pair<float, char>> layer_queue;
+	SceneNode *center, *pivot;
+    TextureList textures;
+    bool is_animating;
+    float animation_time;
+	AnimationList animations;
+
+    void execute_move(int dir, float pos, char axis, int dir_sign, bool is_stacking);
+    void find_layer(float value, char axis);
+	void destroy_temp_pivot();
 };
 
 #endif
