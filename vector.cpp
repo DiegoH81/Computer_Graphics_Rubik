@@ -31,6 +31,14 @@ Vector3& Vector3::operator = (const Vector3& other)
     return *this;
 }
 
+bool Vector3::operator == (const Vector3& other)
+{
+    if (x == other.x && y == other.y && z == other.z)
+        return true;
+
+    return false;
+}
+
 Vector3 cross (const Vector3& v1, const Vector3& v2)
 {
     float new_x = v1.y * v2.z - v2.y * v1.z;

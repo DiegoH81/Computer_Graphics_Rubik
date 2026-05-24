@@ -29,6 +29,8 @@ public:
 
     Point3 get_center();
 	Point3 get_center_local();
+    Vector3 get_normal(int in_face_id);
+
 
     void add_children(SceneNode* in_children);
 
