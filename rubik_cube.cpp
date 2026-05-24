@@ -52,45 +52,43 @@ Rubik::Rubik(const float& in_animation_time):
     
     
     // Move
-    float possible_moves[3] = {0.5f, 0.0f, -0.5f};
+    float possible_moves[3] = {0.52f, 0.0f, -0.52f};
     
     int cur_idx = 0;
     for (auto &z: possible_moves)
         for (auto &y: possible_moves)
             for (auto &x: possible_moves)
             {
-				if(x != 0 && y != 0 && z != 0)
-					continue;
-				
                 Shape* cube = center->children[cur_idx]->shape;
                 center->children[cur_idx]->traslate(Vector3(x, y, z), true);
+                
 
-                if (x == 0.5f)
+                if (x == 0.52f)
                     cube->set_textures(3, "Red");
                     //cube->set_textures(3, "Dirt");
                     //cube->set_face_color(3, &red);
 
-                if (x == -0.5f)
+                if (x == -0.52f)
                     cube->set_textures(2, "Orange");
                     //cube->set_textures(2, "Dirt");
                     //cube->set_face_color(2, &orange);
 
-                if (y == 0.5f)
+                if (y == 0.52f)
                     cube->set_textures(4, "White");
                     //cube->set_textures(4, "Dirt");
                     //cube->set_face_color(4, &white);
 
-                if (y == -0.5f)
+                if (y == -0.52f)
                     cube->set_textures(5, "Yellow");
                     //cube->set_textures(5, "Dirt");
                     //cube->set_face_color(5, &yellow);
 
-                if (z == 0.5f)
+                if (z == 0.52f)
                     cube->set_textures(0, "Blue");
                     //cube->set_textures(0, "Dirt");
                     //cube->set_face_color(0, &blue);
 
-                if (z == -0.5f)
+                if (z == -0.52f)
                     cube->set_textures(1, "Green");
                     //cube->set_textures(1, "Dirt");
                     //cube->set_face_color(1, &green);

@@ -29,6 +29,8 @@ float angle = 10.0f;
 bool is_moving = true;
 
 int current_id = 0;
+int dir = 1;
+
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
                                  "layout (location = 1) in vec3 aNormal;\n"
@@ -137,17 +139,21 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
         else if ( key == GLFW_KEY_S)
             traslate(Vector3(0.0f, -offset, 0.0f));
         else if ( key == GLFW_KEY_1)
-            cubito->move(1, "U");
+            cubito->move(dir, "U");
         else if ( key == GLFW_KEY_2)
-            cubito->move(1, "D");
+            cubito->move(dir, "D");
         else if ( key == GLFW_KEY_3)
-            cubito->move(1, "R");
+            cubito->move(dir, "R");
         else if ( key == GLFW_KEY_4)
-            cubito->move(1, "L");
+            cubito->move(dir, "L");
         else if ( key == GLFW_KEY_5)
-            cubito->move(1, "F");
+            cubito->move(dir, "F");
         else if ( key == GLFW_KEY_6)
-            cubito->move(1, "B");
+            cubito->move(dir, "B");
+		else if ( key == GLFW_KEY_0)
+            dir *= -1;
+		else if ( key == GLFW_KEY_R)
+            cubito->scramble(25);
         else if ( key == GLFW_KEY_I)
             rotate_c_x(angle);
         else if ( key == GLFW_KEY_O)
@@ -247,8 +253,7 @@ int main()
 	glLineWidth(10.0f);
 
 	Rubik cubito(0.4f);
-
-    cubito.scramble(21);
+	
 	nodes.push_back(cubito.get_center());
 
     glfwSetWindowUserPointer(window, &cubito);
