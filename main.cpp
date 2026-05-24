@@ -173,8 +173,38 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
         else if ( key == GLFW_KEY_T)
             is_moving = !is_moving;
         else if ( key == GLFW_KEY_V )
-        {
             camera_animations.add_animation({AnimationInfo(0, 360, "ORBIT_X", "")}, 6.0);
+        else if ( key == GLFW_KEY_G)
+        {
+            auto face_front = cubito->get_face_colors('F');
+            std::cout << "Front:\n";
+            for (auto &face: face_front)
+                std::cout << face.first << "\n";
+
+            auto face_back = cubito->get_face_colors('B');
+            std::cout << "\n\nBack:\n";
+            for (auto &face: face_back)
+                std::cout << face.first << "\n";
+
+            auto face_left = cubito->get_face_colors('L');
+            std::cout << "\n\nLeft:\n";
+            for (auto &face: face_left)
+                std::cout << face.first << "\n";
+
+            auto face_right = cubito->get_face_colors('R');
+            std::cout << "\n\nRight:\n";
+            for (auto &face: face_right)
+                std::cout << face.first << "\n";
+
+            auto face_top = cubito->get_face_colors('T');
+            std::cout << "\n\nTop:\n";
+            for (auto &face: face_top)
+                std::cout << face.first << "\n";
+
+            auto face_down = cubito->get_face_colors('D');
+            std::cout << "\n\nDown:\n";
+            for (auto &face: face_down)
+                std::cout << face.first << "\n";
         }
         else if ( key == GLFW_KEY_LEFT )
         {

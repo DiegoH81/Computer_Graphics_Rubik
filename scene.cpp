@@ -36,6 +36,19 @@ Point3 SceneNode::get_center_local()
 	return to_return;
 }
 
+Vector3 SceneNode::get_normal(int in_face_id)
+{
+    Vector3 normal;
+
+    if (shape)
+    {
+        normal = shape->get_normal(in_face_id);
+        normal = private_transform.transform_normal(normal);
+    }
+
+    return normal;
+}
+
 void SceneNode::add_children(SceneNode* in_children)
 {
     children.push_back(in_children);

@@ -22,6 +22,8 @@ public:
     Vector3 operator / (const float& div) const;
 
     Vector3& operator = (const Vector3& other);
+
+    bool operator == (const Vector3& other);
 };
 
 class Vector2
