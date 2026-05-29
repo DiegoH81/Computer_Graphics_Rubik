@@ -97,41 +97,40 @@ Rubik::Rubik(const float& in_animation_time):
             }
 }
 
-SceneNode* Rubik::find_layer(float value, char axis)
+void Rubik::find_layer(float value, char axis)
 {
     bool x_use = (axis == 'X' ? true : false);
     bool y_use = (axis == 'Y' ? true : false);
     bool z_use = (axis == 'Z' ? true : false);
 
-	SceneNode* temp_pivot = new SceneNode(-1, nullptr);
+	pivot = new SceneNode(-1,nullptr);
+	center->add_children(pivot);
 	
-	for (auto child :center->children)
+	std::vector<SceneNode*> cubes;
+	for(auto child :center->children)
     {
+		if(child == pivot)
+            continue;
+
 		Point3 centerPos = center->get_center_local();
 		Point3 childPos = child->get_center_local();
 		Point3 relativePos = childPos - centerPos;
 
 		if((!x_use || error(relativePos.x, value)) && (!y_use || error(relativePos.y, value)) && (!z_use || error(relativePos.z, value)))
-			temp_pivot->add_children(child);
+			cubes.push_back(child);
+
 	}
 	
-    return temp_pivot;
-}
-
-void Rubik::replace_layers_child(SceneNode* in_pivot)
-{
-	center->add_children(in_pivot);
-	
-	for(auto cube: in_pivot->children)
+	for(auto cube: cubes)
     {
 		for(auto it = center->children.begin(); it != center->children.end(); it++)
         {
-			if(*it == cube)
-            {
+			if(*it == cube){
 				center->children.erase(it);
 				break;
 			}
 		}
+		pivot->add_children(cube);
 	}
 }
 
@@ -232,8 +231,7 @@ void Rubik::process_animation(const float& in_delta)
     if (!is_animating) // Change layer
     {
         auto top = layer_queue.front();
-        pivot = find_layer(top.first, top.second);
-        replace_layers_child(pivot);
+        find_layer(top.first, top.second);
 
         layer_queue.pop();
         is_animating = true;
@@ -361,4 +359,5 @@ std::vector <std::pair<std::string, Point3>> Rubik::get_face_colors(char face)
 
     delete new_layer;
     return to_return;
+
 }

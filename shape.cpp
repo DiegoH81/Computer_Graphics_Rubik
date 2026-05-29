@@ -12,8 +12,7 @@ Shape::Shape():
     has_faces(false),
     has_edges(false),
     has_points(false),
-    uses_texture(false),
-    normals()
+    uses_texture(false)
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -201,14 +200,6 @@ void Shape::setup_edges(Color *in_color)
 
 void Shape::setup_points(Color *in_color)
 { }
-
-Vector3 Shape::get_normal(int in_face_id)
-{
-    if (in_face_id < 0 || in_face_id >= normals.size())
-        return Vector3();
-
-    return normals[in_face_id];
-}
 
 // CIRCLE
 
@@ -525,52 +516,41 @@ void Cube::create_cube(Color* in_color)
     //  0   1
 
     // Front
-    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(0, 0, 1), Point2(0, 0))); // 0 FL        [0]
-    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(0, 0, 1), Point2(1, 0))); // 1 FR        [1]
-    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(0, 0, 1), Point2(1, 1))); // 2 TR        [2]
-    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(0, 0, 1), Point2(0, 1))); // 3 TL        [3]
-
-    normals.push_back(Vector3(0, 0, 1));
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(), Point2(0, 0))); // 0 FL        [0]
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(), Point2(1, 0))); // 1 FR        [1]
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(), Point2(1, 1))); // 2 TR        [2]
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(), Point2(0, 1))); // 3 TL        [3]
 
     // Back
-    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(0, 0, -1), Point2(0, 0))); // 4 BL        [4]
-    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(0, 0, -1), Point2(1, 0))); // 5 BR        [5]
-    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(0, 0, -1), Point2(1, 1))); // 6 TR back   [7]
-    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(0, 0, -1), Point2(0, 1))); // 7 TL back   [6]
-
-    normals.push_back(Vector3(0, 0, -1));
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(), Point2(0, 0))); // 4 BL        [4]
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(), Point2(1, 0))); // 5 BR        [5]
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(), Point2(1, 1))); // 6 TR back   [7]
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(), Point2(0, 1))); // 7 TL back   [6]
 
     // Left
-    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(-1, 0, 0), Point2(0, 0))); // 4 BL        [8]
-    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(-1, 0, 0), Point2(1, 0))); // 0 FL        [9]
-    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(-1, 0, 0), Point2(1, 1))); // 3 TL        [10]
-    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(-1, 0, 0), Point2(0, 1))); // 7 TL back   [11]
-
-    normals.push_back(Vector3(-1, 0, 0));
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(), Point2(0, 0))); // 4 BL        [8]
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(), Point2(1, 0))); // 0 FL        [9]
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(), Point2(1, 1))); // 3 TL        [10]
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(), Point2(0, 1))); // 7 TL back   [11]
 
     // Right
-    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(1, 0, 0), Point2(0, 0))); // 1 FR
-    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(1, 0, 0), Point2(1, 0))); // 5 BR
-    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(1, 0, 0), Point2(1, 1))); // 6 TR back
-    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(1, 0, 0), Point2(0, 1))); // 2 TR
-
-    normals.push_back(Vector3(1, 0, 0));
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(), Point2(0, 0))); // 1 FR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(), Point2(1, 0))); // 5 BR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(), Point2(1, 1))); // 6 TR back
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(), Point2(0, 1))); // 2 TR
 
     // Top
-    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(0, 1, 0), Point2(0, 0))); // 3 TL
-    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(0, 1, 0), Point2(1, 0))); // 2 TR
-    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(0, 1, 0), Point2(1, 1))); // 6 TR back
-    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(0, 1, 0), Point2(0, 1))); // 7 TL back
-
-    normals.push_back(Vector3(0, 1, 0));
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z + s), Vector3(), Point2(0, 0))); // 3 TL
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z + s), Vector3(), Point2(1, 0))); // 2 TR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y + s, center.z - s), Vector3(), Point2(1, 1))); // 6 TR back
+    vertices.push_back(Vertex(Point3(center.x - s, center.y + s, center.z - s), Vector3(), Point2(0, 1))); // 7 TL back
 
     // Down
-    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(0, -1, 0), Point2(0, 0))); // 0 FL
-    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(0, -1, 0), Point2(1, 0))); // 1 FR
-    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(0, -1, 0), Point2(1, 1))); // 5 BR
-    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(0, -1, 0), Point2(0, 1))); // 4 BL
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z + s), Vector3(), Point2(0, 0))); // 0 FL
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z + s), Vector3(), Point2(1, 0))); // 1 FR
+    vertices.push_back(Vertex(Point3(center.x + s, center.y - s, center.z - s), Vector3(), Point2(1, 1))); // 5 BR
+    vertices.push_back(Vertex(Point3(center.x - s, center.y - s, center.z - s), Vector3(), Point2(0, 1))); // 4 BL
 
-    normals.push_back(Vector3(0, -1, 0));
 
 
     // INDICES

@@ -179,11 +179,3 @@ Matrix_4 get_perspective(const float& in_y_fov,
 
     return to_return;
 }
-
-Vector3 Matrix_4::transform_normal(const Vector3& in_vector)
-{
-    float x = matrix[0]*in_vector.x + matrix[1]*in_vector.y + matrix[2]*in_vector.z;
-    float y = matrix[4]*in_vector.x + matrix[5]*in_vector.y + matrix[6]*in_vector.z;
-    float z = matrix[8]*in_vector.x + matrix[9]*in_vector.y + matrix[10]*in_vector.z;
-    return Vector3(x, y, z);
-}

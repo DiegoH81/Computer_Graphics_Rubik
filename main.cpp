@@ -150,6 +150,12 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
             cubito->move(dir, "F");
         else if ( key == GLFW_KEY_6)
             cubito->move(dir, "B");
+		else if ( key == GLFW_KEY_7)
+            cubito->move(dir, "M1");
+		else if ( key == GLFW_KEY_8)
+            cubito->move(dir, "M2");
+		else if ( key == GLFW_KEY_9)
+            cubito->move(dir, "M3");
 		else if ( key == GLFW_KEY_0)
             dir *= -1;
 		else if ( key == GLFW_KEY_R)
@@ -173,7 +179,9 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
         else if ( key == GLFW_KEY_T)
             is_moving = !is_moving;
         else if ( key == GLFW_KEY_V )
-            camera_animations.add_animation({AnimationInfo(0, 360, "ORBIT_X", "")}, 6.0);
+            camera_animations.add_animation({AnimationInfo(0, 180, "ORBIT_Y", "")}, 3.0);
+        else if ( key == GLFW_KEY_B)
+            camera_animations.add_animation({AnimationInfo(0, 180, "ORBIT_X", "")}, 3.0);
         else if ( key == GLFW_KEY_P)
         {
             /*
@@ -261,7 +269,7 @@ int main()
     Color white(255.0f, 255.0f, 255.0f, true);
 
     // Camera
-    camera_world.set_pos(Point3(1.5f, 1.5f, 5.0f));
+    camera_world.set_pos(Point3(0.0f, 0.0f, 5.0f));
     camera_world.set_objective(Point3(0.0f, 0.0f, 0.0f));
 
 
