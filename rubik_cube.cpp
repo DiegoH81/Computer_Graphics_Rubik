@@ -97,41 +97,40 @@ Rubik::Rubik(const float& in_animation_time):
             }
 }
 
-SceneNode* Rubik::find_layer(float value, char axis)
+void Rubik::find_layer(float value, char axis)
 {
     bool x_use = (axis == 'X' ? true : false);
     bool y_use = (axis == 'Y' ? true : false);
     bool z_use = (axis == 'Z' ? true : false);
 
-	SceneNode* temp_pivot = new SceneNode(-1, nullptr);
+	pivot = new SceneNode(-1,nullptr);
+	center->add_children(pivot);
 	
-	for (auto child :center->children)
+	std::vector<SceneNode*> cubes;
+	for(auto child :center->children)
     {
+		if(child == pivot)
+            continue;
+
 		Point3 centerPos = center->get_center_local();
 		Point3 childPos = child->get_center_local();
 		Point3 relativePos = childPos - centerPos;
 
 		if((!x_use || error(relativePos.x, value)) && (!y_use || error(relativePos.y, value)) && (!z_use || error(relativePos.z, value)))
-			temp_pivot->add_children(child);
+			cubes.push_back(child);
+
 	}
 	
-    return temp_pivot;
-}
-
-void Rubik::replace_layers_child(SceneNode* in_pivot)
-{
-	center->add_children(in_pivot);
-	
-	for(auto cube: in_pivot->children)
+	for(auto cube: cubes)
     {
 		for(auto it = center->children.begin(); it != center->children.end(); it++)
         {
-			if(*it == cube)
-            {
+			if(*it == cube){
 				center->children.erase(it);
 				break;
 			}
 		}
+		pivot->add_children(cube);
 	}
 }
 
@@ -216,6 +215,12 @@ void Rubik::move(int dir, std::string move_cmd, bool is_stacking)
         execute_move(dir, -0.5f, 'Z', 1, is_stacking);
         execute_move(dir, -0.5f, 'Z', 1, is_stacking);
     }
+	else if (move_cmd == "M1")
+        execute_move(dir, 0.0f, 'Z', 1, is_stacking);
+	else if (move_cmd == "M2")
+        execute_move(dir, 0.0f, 'Y', 1, is_stacking);
+	else if (move_cmd == "M3")
+        execute_move(dir, 0.0f, 'X', 1, is_stacking);
 }
 
 void Rubik::process_animation(const float& in_delta)
@@ -226,8 +231,7 @@ void Rubik::process_animation(const float& in_delta)
     if (!is_animating) // Change layer
     {
         auto top = layer_queue.front();
-        pivot = find_layer(top.first, top.second);
-        replace_layers_child(pivot);
+        find_layer(top.first, top.second);
 
         layer_queue.pop();
         is_animating = true;
@@ -278,78 +282,4 @@ void Rubik::execute_move(int dir, float pos, char axis, int dir_sign, bool is_st
 
     std::string type = "ROTATE_" + std::string(1, axis);
     animations.add_animation({AnimationInfo(-1, dir * dir_sign* 90, type, "PUBLIC")}, time);
-}
-
-std::vector <std::pair<std::string, Point3>> Rubik::get_face_colors(char face)
-{
-    std::vector <std::pair<std::string, Point3>> to_return;
-
-    auto normal_objective = Vector3();
-    SceneNode* new_layer = nullptr;
-      
-    switch (face)
-    {
-    case 'F':
-    {
-        new_layer = find_layer(0.52f, 'Z');
-        normal_objective = Vector3(0, 0, 1);
-        break;
-    }
-    case 'B':
-    {
-        new_layer = find_layer(-0.52f, 'Z');
-        normal_objective = Vector3(0, 0, -1);
-        break;
-    }
-    case 'R':
-    {
-        new_layer = find_layer(0.52f, 'X');
-        normal_objective = Vector3(1, 0, 0);
-        break;
-    }
-    case 'L':
-    {
-        new_layer = find_layer(-0.52f, 'X');
-        normal_objective = Vector3(-1, 0, 0);
-        break;
-    }
-    case 'T':
-    {
-        new_layer = find_layer(0.52f, 'Y');
-        normal_objective = Vector3(0, 1, 0);
-        break;
-    }
-    case 'D':
-    {
-        new_layer = find_layer(-0.52f, 'Y');
-        normal_objective = Vector3(0, -1, 0);
-        break;
-    }
-    default:
-        break;
-    }
-
-    
-    // Front - 0
-    // Back - 1
-    // Left - 2
-    // Right - 3
-    // Top - 4
-    // Down - 5
-
-    for (auto &cube : new_layer->children)
-    {
-        for (int face_id = 0; face_id < 6; face_id++)
-        {
-            if (vec_length(cube->get_normal(face_id) - normal_objective) < 0.05f)
-            {
-                std::string tex_name = cube->shape->info_faces[face_id].texture_name;
-                auto cube_center = cube->get_center_local();
-                to_return.push_back({tex_name, cube_center});
-            }
-        }
-    }
-
-    delete new_layer;
-    return to_return;
 }

@@ -35,8 +35,6 @@ public:
     void rotate_z(float in_angle);
 
     void transpose();
-
-    Vector3 transform_normal(const Vector3& in_vector);
 };
 
 

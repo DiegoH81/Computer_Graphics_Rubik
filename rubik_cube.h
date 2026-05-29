@@ -27,8 +27,7 @@ public:
 	void process_animation(const float& in_delta);
     void scramble(int moves);
     SceneNode* get_center();
-    std::vector <std::pair<std::string, Point3>> get_face_colors(char face);
-    
+
 private:
     std::vector<Cube*> cubes;
     std::queue<std::pair<float, char>> layer_queue;
@@ -39,9 +38,8 @@ private:
 	AnimationList animations;
 
     void execute_move(int dir, float pos, char axis, int dir_sign, bool is_stacking);
-    SceneNode* find_layer(float value, char axis);
-    void replace_layers_child(SceneNode* in_pivot);
-	void destroy_temp_pivot();    
+    void find_layer(float value, char axis);
+	void destroy_temp_pivot();
 };
 
 #endif
