@@ -182,6 +182,24 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
             camera_animations.add_animation({AnimationInfo(0, 180, "ORBIT_Y", "")}, 3.0);
         else if ( key == GLFW_KEY_B)
             camera_animations.add_animation({AnimationInfo(0, 180, "ORBIT_X", "")}, 3.0);
+        else if ( key == GLFW_KEY_P)
+        {
+            /*
+            std::cout << "Front: " << cubito->get_front() << "\n";
+            
+            std::cout << "Back: " << cubito->get_back() << "\n";
+            
+            std::cout << "Left: " << cubito->get_left() << "\n";
+            
+            std::cout << "Right: " << cubito->get_right() << "\n";
+            
+            std::cout << "Top: " << cubito->get_top() << "\n";
+            
+            std::cout << "Down: " << cubito->get_down() << "\n";
+            */
+
+            cubito->solve();
+        }
         else if ( key == GLFW_KEY_LEFT )
         {
             current_id --;
@@ -258,7 +276,7 @@ int main()
     // Figuras
 	glLineWidth(10.0f);
 
-	Rubik cubito(0.4f);
+	Rubik cubito(0.2f);
 	
 	nodes.push_back(cubito.get_center());
 

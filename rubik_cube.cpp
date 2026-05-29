@@ -215,12 +215,12 @@ void Rubik::move(int dir, std::string move_cmd, bool is_stacking)
         execute_move(dir, -0.5f, 'Z', 1, is_stacking);
         execute_move(dir, -0.5f, 'Z', 1, is_stacking);
     }
-	else if (move_cmd == "M1")
-        execute_move(dir, 0.0f, 'Z', 1, is_stacking);
-	else if (move_cmd == "M2")
-        execute_move(dir, 0.0f, 'Y', 1, is_stacking);
-	else if (move_cmd == "M3")
+    else if (move_cmd == "M1")
         execute_move(dir, 0.0f, 'X', 1, is_stacking);
+    else if (move_cmd == "M2")
+        execute_move(dir, 0.0f, 'Y', 1, is_stacking);
+    else if (move_cmd == "M3")
+        execute_move(dir, 0.0f, 'Z', 1, is_stacking);
 }
 
 void Rubik::process_animation(const float& in_delta)
@@ -254,9 +254,10 @@ void Rubik::scramble(int moves)
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    std::uniform_int_distribution<int> distribucion_move(0, 11);
+    std::vector<std::string> possible_moves = {"U", "U2", "D", "D2", "R", "R2", "L", "L2", "F", "F2", "B", "B2", "M1", "M2", "M3"};
+
+    std::uniform_int_distribution<int> distribucion_move(0, possible_moves.size() - 1);
     std::uniform_int_distribution<int> distribucion_prime(0, 1);
-    std::vector<std::string> possible_moves = {"U", "U2", "D", "D2", "R", "R2", "L", "L2", "F", "F2", "B", "B2"};
 
     for (int i = 0; i < moves; i++)
     {
@@ -282,4 +283,81 @@ void Rubik::execute_move(int dir, float pos, char axis, int dir_sign, bool is_st
 
     std::string type = "ROTATE_" + std::string(1, axis);
     animations.add_animation({AnimationInfo(-1, dir * dir_sign* 90, type, "PUBLIC")}, time);
+}
+
+std::vector <std::pair<std::string, Point3>> Rubik::get_face_colors(char face)
+{
+    std::vector <std::pair<std::string, Point3>> to_return;
+
+    auto normal_objective = Vector3();
+    SceneNode* new_layer = nullptr;
+      
+    switch (face)
+    {
+    case 'F':
+    {
+        new_layer = find_layer(0.52f, 'Z');
+        normal_objective = Vector3(0, 0, 1);
+        break;
+    }
+    case 'B':
+    {
+        new_layer = find_layer(-0.52f, 'Z');
+        normal_objective = Vector3(0, 0, -1);
+        break;
+    }
+    case 'R':
+    {
+        new_layer = find_layer(0.52f, 'X');
+        normal_objective = Vector3(1, 0, 0);
+        break;
+    }
+    case 'L':
+    {
+        new_layer = find_layer(-0.52f, 'X');
+        normal_objective = Vector3(-1, 0, 0);
+        break;
+    }
+    case 'T':
+    {
+        new_layer = find_layer(0.52f, 'Y');
+        normal_objective = Vector3(0, 1, 0);
+        break;
+    }
+    case 'D':
+    {
+        new_layer = find_layer(-0.52f, 'Y');
+        normal_objective = Vector3(0, -1, 0);
+        break;
+    }
+    default:
+        break;
+    }
+
+    
+    // Front - 0
+    // Back - 1
+    // Left - 2
+    // Right - 3
+    // Top - 4
+    // Down - 5
+
+    for (auto &cube : new_layer->children)
+    {
+        for (int face_id = 0; face_id < 6; face_id++)
+        {
+            if (vec_length(cube->get_normal(face_id) - normal_objective) < 0.05f)
+            {
+                std::string tex_name = cube->shape->info_faces[face_id].texture_name;
+                auto cube_center = cube->get_center_local();
+
+                tex_name = std::string(1, tex_name.front());
+                to_return.push_back({tex_name, cube_center});
+            }
+        }
+    }
+
+    delete new_layer;
+    return to_return;
+
 }
