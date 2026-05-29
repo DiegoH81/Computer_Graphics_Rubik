@@ -216,6 +216,12 @@ void Rubik::move(int dir, std::string move_cmd, bool is_stacking)
         execute_move(dir, -0.5f, 'Z', 1, is_stacking);
         execute_move(dir, -0.5f, 'Z', 1, is_stacking);
     }
+    else if (move_cmd == "M1")
+        execute_move(dir, 0.0f, 'X', 1, is_stacking);
+    else if (move_cmd == "M2")
+        execute_move(dir, 0.0f, 'Y', 1, is_stacking);
+    else if (move_cmd == "M3")
+        execute_move(dir, 0.0f, 'Z', 1, is_stacking);
 }
 
 void Rubik::process_animation(const float& in_delta)
@@ -250,9 +256,10 @@ void Rubik::scramble(int moves)
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    std::uniform_int_distribution<int> distribucion_move(0, 11);
+    std::vector<std::string> possible_moves = {"U", "U2", "D", "D2", "R", "R2", "L", "L2", "F", "F2", "B", "B2", "M1", "M2", "M3"};
+
+    std::uniform_int_distribution<int> distribucion_move(0, possible_moves.size() - 1);
     std::uniform_int_distribution<int> distribucion_prime(0, 1);
-    std::vector<std::string> possible_moves = {"U", "U2", "D", "D2", "R", "R2", "L", "L2", "F", "F2", "B", "B2"};
 
     for (int i = 0; i < moves; i++)
     {
@@ -345,6 +352,8 @@ std::vector <std::pair<std::string, Point3>> Rubik::get_face_colors(char face)
             {
                 std::string tex_name = cube->shape->info_faces[face_id].texture_name;
                 auto cube_center = cube->get_center_local();
+
+                tex_name = std::string(1, tex_name.front());
                 to_return.push_back({tex_name, cube_center});
             }
         }

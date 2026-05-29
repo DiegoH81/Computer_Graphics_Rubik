@@ -174,37 +174,23 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
             is_moving = !is_moving;
         else if ( key == GLFW_KEY_V )
             camera_animations.add_animation({AnimationInfo(0, 360, "ORBIT_X", "")}, 6.0);
-        else if ( key == GLFW_KEY_G)
+        else if ( key == GLFW_KEY_P)
         {
-            auto face_front = cubito->get_face_colors('F');
-            std::cout << "Front:\n";
-            for (auto &face: face_front)
-                std::cout << face.first << "\n";
+            /*
+            std::cout << "Front: " << cubito->get_front() << "\n";
+            
+            std::cout << "Back: " << cubito->get_back() << "\n";
+            
+            std::cout << "Left: " << cubito->get_left() << "\n";
+            
+            std::cout << "Right: " << cubito->get_right() << "\n";
+            
+            std::cout << "Top: " << cubito->get_top() << "\n";
+            
+            std::cout << "Down: " << cubito->get_down() << "\n";
+            */
 
-            auto face_back = cubito->get_face_colors('B');
-            std::cout << "\n\nBack:\n";
-            for (auto &face: face_back)
-                std::cout << face.first << "\n";
-
-            auto face_left = cubito->get_face_colors('L');
-            std::cout << "\n\nLeft:\n";
-            for (auto &face: face_left)
-                std::cout << face.first << "\n";
-
-            auto face_right = cubito->get_face_colors('R');
-            std::cout << "\n\nRight:\n";
-            for (auto &face: face_right)
-                std::cout << face.first << "\n";
-
-            auto face_top = cubito->get_face_colors('T');
-            std::cout << "\n\nTop:\n";
-            for (auto &face: face_top)
-                std::cout << face.first << "\n";
-
-            auto face_down = cubito->get_face_colors('D');
-            std::cout << "\n\nDown:\n";
-            for (auto &face: face_down)
-                std::cout << face.first << "\n";
+            cubito->solve();
         }
         else if ( key == GLFW_KEY_LEFT )
         {
@@ -282,7 +268,7 @@ int main()
     // Figuras
 	glLineWidth(10.0f);
 
-	Rubik cubito(0.4f);
+	Rubik cubito(0.2f);
 	
 	nodes.push_back(cubito.get_center());
 
