@@ -3,6 +3,17 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+/*
+
+Integrantes:
+	Cornejo Castro, José Gabriel
+	Hidalgo Machaca, Diego Alejandro
+	Huarcaya Lizarraga, Astrid Judith
+
+
+*/
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -276,7 +287,7 @@ int main()
     // Figuras
 	glLineWidth(10.0f);
 
-	Rubik cubito(0.2f);
+	Rubik cubito(0.3f);
 	
 	nodes.push_back(cubito.get_center());
 
@@ -296,12 +307,14 @@ int main()
 
     while(!glfwWindowShouldClose(window))
     {
+        float current_frame = glfwGetTime();
+        delta_time = std::min(current_frame - last_frame, 0.05f);
+        last_frame = current_frame;
+
+
         camera_animations.process_animations_camera(camera_world, nodes, delta_time);
         cubito.process_animation(delta_time);
 
-        float current_frame = glfwGetTime();
-        delta_time = current_frame - last_frame;
-        last_frame = current_frame;
 
         glClearColor(background_color.r, background_color.g, background_color.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

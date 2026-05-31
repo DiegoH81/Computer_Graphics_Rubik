@@ -29,6 +29,8 @@ void AnimationList::process_animations(const std::vector<SceneNode*>& in_info, c
     if (animation_queue.empty()) return;
 
     auto &top = animation_queue.front();
+    float actual_delta = std::min(in_delta_time, top.remaining_time);
+
 
     for (auto& t : top.transforms)
     {
@@ -38,7 +40,7 @@ void AnimationList::process_animations(const std::vector<SceneNode*>& in_info, c
             if (node->id != t.id && t.id != ALL_IDs)
                 continue;
 
-            float move = t.move * in_delta_time;
+            float move = t.move * actual_delta;
             auto& type = t.type;
 
             if (type == "MOVE_X")
