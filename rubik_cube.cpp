@@ -367,6 +367,9 @@ std::vector <std::pair<std::string, Point3>> Rubik::get_face_colors(char face)
 
 void Rubik::solve()
 {
+    if (is_animating || !animations.animation_queue.empty())
+        return;
+
     auto front = get_front();
     auto back = get_back();
     auto left = get_left();
