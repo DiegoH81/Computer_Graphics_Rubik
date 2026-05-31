@@ -28,6 +28,9 @@ public:
     void draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& in_parent);
 
     Point3 get_center();
+	Point3 get_center_local();
+    Vector3 get_normal(int in_face_id);
+
 
     void add_children(SceneNode* in_children);
 

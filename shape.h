@@ -48,7 +48,11 @@ public:
     void add_points(Color *in_color = &base_color);
     void add_faces(Color *in_color = &base_color);
     void add_textures(const std::string in_texture = base_texture);
+
+    Vector3 get_normal(int in_face_id);
 protected:
+    std::vector<Vector3> normals;
+
     virtual void setup_edges(Color *in_color = &base_color);
     virtual void setup_points(Color *in_color = &base_color);
 };

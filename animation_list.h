@@ -39,7 +39,7 @@ public:
 
     void add_animation(const std::vector<AnimationInfo>& animation_sequence, const float& seconds);
 
-    void process_animations(std::vector<SceneNode*>& in_info, const float& in_delta_time);
+    void process_animations(const std::vector<SceneNode*>& in_info, const float& in_delta_time);
 
     void process_animations_camera(Camera& in_camera, std::vector<SceneNode*>& in_info, const float& in_delta_time);
 
