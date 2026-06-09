@@ -17,7 +17,7 @@ void TextureList::add_texture(const std::string& texture_name, const std::string
 {
     std::filesystem::path current_path = std::filesystem::current_path();
 	current_path = current_path.parent_path();
-    current_path = current_path / "ownProjects" / "rubik" / "textures" / texture_path;
+    current_path = current_path / "ownProjects" / "Rubik_Jose_Diego_Astrid" / "textures" / texture_path;
     //std::cout << "Ruta actual: "<< current_path << "\n";
 
     unsigned int texture;
@@ -34,7 +34,7 @@ void TextureList::add_texture(const std::string& texture_name, const std::string
     int width, height, nrChannels;
     unsigned char *data = stbi_load(current_path.string().c_str(), &width, &height, &nrChannels, 0);
 
-    std::cout << "Loading textures from: " << current_path << "\n";
+    //std::cout << "Loading textures from: " << current_path << "\n";
     if (!data)
     {
         std::cout << "STB error: " << stbi_failure_reason() << "\n";

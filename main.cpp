@@ -305,6 +305,27 @@ int main()
     auto projection_matrix = get_perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
     shaders.set_mat4("UNIQUE", "projection", projection_matrix);
 
+	
+	std::cout << "-------------------------\n";
+	std::cout << "            MENU            \n";
+	std::cout << "Controles:\n\n";
+	std::cout << "Tecla 1: U\n";
+	std::cout << "Tecla 2: D\n";
+	std::cout << "Tecla 3: R\n";
+	std::cout << "Tecla 4: L\n";
+	std::cout << "Tecla 5: F\n";
+	std::cout << "Tecla 6: B\n";
+	std::cout << "Tecla 7: Medio 1\n";
+	std::cout << "Tecla 8: Medio 2\n";
+	std::cout << "Tecla 9: Medio 3\n";
+	std::cout << "Tecla 0: Invertir rotaciones\n\n";
+	
+	std::cout << "Tecla R: Desordenar aleatoriamente\n";
+	std::cout << "Tecla P: Resolver cubo\n";
+	std::cout << "Tecla V: Rotar camara en Y\n";
+	std::cout << "Tecla B: Rotar camara en Z\n";
+	std::cout << "-------------------------\n\n";
+	
     while(!glfwWindowShouldClose(window))
     {
         float current_frame = glfwGetTime();

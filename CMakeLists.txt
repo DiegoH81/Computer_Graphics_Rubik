@@ -1,4 +1,4 @@
-project( RUBIK )
+project( Computer_Graphics_Rubik )
 
 message( "Source of application:  ${CMAKE_SOURCE_DIR} " )
 message( "Subproject name:  ${PROJECT_NAME} " )

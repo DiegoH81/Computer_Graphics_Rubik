@@ -97,7 +97,7 @@ Rubik::Rubik(const float& in_animation_time):
             }
 }
 
-SceneNode* Rubik::find_layer(float value, char axis, SceneNode* in_node)
+SceneNode* Rubik::find_layer(float value, char axis, SceneNode* to_search)
 {
     bool x_use = (axis == 'X' ? true : false);
     bool y_use = (axis == 'Y' ? true : false);
@@ -105,9 +105,9 @@ SceneNode* Rubik::find_layer(float value, char axis, SceneNode* in_node)
 
 	SceneNode* temp_pivot = new SceneNode(-1, nullptr);
 	
-	for (auto child :in_node->children)
+	for (auto child :to_search->children)
     {
-		Point3 centerPos = in_node->get_center_local();
+		Point3 centerPos = center->get_center_local();
 		Point3 childPos = child->get_center_local();
 		Point3 relativePos = childPos - centerPos;
 
@@ -224,6 +224,7 @@ void Rubik::move(int dir, std::string move_cmd, bool is_stacking)
         execute_move(dir, 0.0f, 'Y', 1, is_stacking);
     else if (move_cmd == "M3")
         execute_move(dir, 0.0f, 'Z', 1, is_stacking);
+    
 }
 
 void Rubik::process_animation(const float& in_delta)
@@ -234,6 +235,9 @@ void Rubik::process_animation(const float& in_delta)
     if (!is_animating) // Change layer
     {
         auto top = layer_queue.front();
+
+        
+
         pivot = find_layer(top.first, top.second, center);
         replace_layers_child(pivot);
 
@@ -362,156 +366,5 @@ std::vector <std::pair<std::string, Point3>> Rubik::get_face_colors(char face)
     }
 
     delete new_layer;
-    return to_return;
-}
-
-void Rubik::solve()
-{
-    if (is_animating || !animations.animation_queue.empty())
-        return;
-
-    auto front = get_front();
-    auto back = get_back();
-    auto left = get_left();
-    auto right = get_right();
-    auto top = get_top();
-    auto down = get_down();
-
-    std::string total = top + left + front + right + back + down;
-
-    rb::RubikCube rb(total.c_str(), 3);
-    rb::RubikCubeSolver* solver = new rb::RubikCube3BasicSolver(rb);
-
-    // Parse
-    std::string total_moves = solver->Solve();
-
-    std::stringstream ss(total_moves);
-    std::string token;
-
-    std::vector<std::string> moves_lists;
-    std::cout << "MOVES: " << total_moves << "\n";
-    while (ss >> token)
-        moves_lists.push_back(token);
-    
-    for (auto &cur_move : moves_lists)
-    {
-        int dir = 1;
-        if (cur_move.back() == '\'')
-        {
-            cur_move.pop_back();
-            dir = -1;
-        }
-
-        move(dir, cur_move, true);
-    }
-    
-    delete solver;
-}
-
-std::string Rubik::get_front()
-{
-    auto face_colors = get_face_colors('F');
-    
-    std::sort(face_colors.begin(), face_colors.end(), order('Y', INVERSO));
-    std::sort(face_colors.begin(), face_colors.begin() + 3, order('X', NORMAL));
-    std::sort(face_colors.begin() + 3, face_colors.begin() + 6, order('X', NORMAL));
-    std::sort(face_colors.begin() + 6, face_colors.end(), order('X', NORMAL));
-
-    std::string to_return;
-
-    for (auto &c : face_colors)
-        to_return += c.first;
-
-
-    return to_return;
-}
-
-std::string Rubik::get_back()
-{
-    auto face_colors = get_face_colors('B');
-    
-    std::sort(face_colors.begin(), face_colors.end(), order('Y', INVERSO));
-    std::sort(face_colors.begin(), face_colors.begin() + 3, order('X', INVERSO));
-    std::sort(face_colors.begin() + 3, face_colors.begin() + 6, order('X', INVERSO));
-    std::sort(face_colors.begin() + 6, face_colors.end(), order('X', INVERSO));
-
-    std::string to_return;
-
-    for (auto &c : face_colors)
-        to_return += c.first;
-
-
-    return to_return;
-}
-
-std::string Rubik::get_left()
-{
-    auto face_colors = get_face_colors('L');
-    
-    std::sort(face_colors.begin(), face_colors.end(), order('Y', INVERSO));
-    std::sort(face_colors.begin(), face_colors.begin() + 3, order('Z', NORMAL));
-    std::sort(face_colors.begin() + 3, face_colors.begin() + 6, order('Z', NORMAL));
-    std::sort(face_colors.begin() + 6, face_colors.end(), order('Z', NORMAL));
-
-    std::string to_return;
-
-    for (auto &c : face_colors)
-        to_return += c.first;
-
-
-    return to_return;
-}
-
-std::string Rubik::get_right()
-{
-    auto face_colors = get_face_colors('R');
-    
-    std::sort(face_colors.begin(), face_colors.end(), order('Y', INVERSO));
-    std::sort(face_colors.begin(), face_colors.begin() + 3, order('Z', INVERSO));
-    std::sort(face_colors.begin() + 3, face_colors.begin() + 6, order('Z', INVERSO));
-    std::sort(face_colors.begin() + 6, face_colors.end(), order('Z', INVERSO));
-
-    std::string to_return;
-
-    for (auto &c : face_colors)
-        to_return += c.first;
-
-
-    return to_return;
-}
-
-std::string Rubik::get_top()
-{
-    auto face_colors = get_face_colors('T');
-    
-    std::sort(face_colors.begin(), face_colors.end(), order('Z', NORMAL));
-    std::sort(face_colors.begin(), face_colors.begin() + 3, order('X', NORMAL));
-    std::sort(face_colors.begin() + 3, face_colors.begin() + 6, order('X', NORMAL));
-    std::sort(face_colors.begin() + 6, face_colors.end(), order('X', NORMAL));
-
-    std::string to_return;
-
-    for (auto &c : face_colors)
-        to_return += c.first;
-
-
-    return to_return;
-}
-
-std::string Rubik::get_down()
-{
-    auto face_colors = get_face_colors('D');
-    
-    std::sort(face_colors.begin(), face_colors.end(), order('Z', INVERSO));
-    std::sort(face_colors.begin(), face_colors.begin() + 3, order('X', NORMAL));
-    std::sort(face_colors.begin() + 3, face_colors.begin() + 6, order('X', NORMAL));
-    std::sort(face_colors.begin() + 6, face_colors.end(), order('X', NORMAL));
-
-    std::string to_return;
-
-    for (auto &c : face_colors)
-        to_return += c.first;
-
-
     return to_return;
 }
