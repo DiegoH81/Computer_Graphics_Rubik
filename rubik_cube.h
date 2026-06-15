@@ -58,7 +58,6 @@ class Rubik
 {
 public:
 	Rubik(const float &in_animation_time);
-	void draw(ShaderList& shaders);
     void move(int dir, std::string move_cmd, bool is_stacking = false);
 	void process_animation(const float& in_delta);
     void scramble(int moves);
@@ -217,10 +216,10 @@ private:
     std::vector<Cube*> cubes;
     std::queue<std::pair<float, char>> layer_queue;
 	SceneNode *center, *pivot;
-    TextureList textures;
     bool is_animating;
     float animation_time;
 	AnimationList animations;
+    Material cube_material;
 
     void execute_move(int dir, float pos, char axis, int dir_sign, bool is_stacking);
     SceneNode* find_layer(float value, char axis, SceneNode* to_search);

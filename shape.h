@@ -15,6 +15,7 @@
 #include "texture_list.h"
 
 inline Color base_color(70, 130, 180, true);
+inline Material base_material;
 inline std::string base_texture = "NO_TEXTURE";
 
 class Shape
@@ -23,6 +24,8 @@ public:
     bool has_faces, has_edges, has_points, uses_texture;
     unsigned int VAO, VBO, EBO;
     Point3 center;
+    std::string shader_name;
+    Material* material;
 
     std::vector <Vertex> vertices;
     std::vector <unsigned int> indices;
@@ -38,6 +41,9 @@ public:
     void init_buffers();
 
     void draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& in_world = Matrix_4());
+
+    void set_shader_name(const std::string& in_shader_name);
+    void set_material(Material* in_material = &base_material);
 
     void set_face_color(int in_id, Color* in_color);
     void set_edge_color(int in_id, Color* in_color);

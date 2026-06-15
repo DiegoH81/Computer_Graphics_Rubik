@@ -7,7 +7,7 @@
 // SHAPE
 
 Shape::Shape():
-    vertices(), indices(), center(),
+    vertices(), indices(), center(), shader_name("UNIQUE"), material(&base_material),
 
     has_faces(false),
     has_edges(false),
@@ -58,8 +58,10 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
 {
     glBindVertexArray(VAO);
 
-    shaders.set_mat4("UNIQUE", "model", in_world);
-    shaders.set_bool("UNIQUE", "useTexture", uses_texture);
+    shaders.use_shader(shader_name);
+    shaders.set_mat4(shader_name, "model", in_world);
+    shaders.set_bool(shader_name, "useTexture", uses_texture);
+    shaders.set_material(shader_name, "material", material);
 
 
     if (has_faces)
@@ -69,12 +71,12 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
             if (uses_texture)
             {
                 in_textures.use_texture(face.texture_name, 0);
-                shaders.set_texture("UNIQUE", "ourTexture", 0);
+                shaders.set_texture(shader_name, "ourTexture", 0);
             }
             else
             {
                 auto &color = face.color;
-                shaders.set_vec3("UNIQUE", "color", color->r, color->g, color->b);
+                shaders.set_vec3(shader_name, "color", color->r, color->g, color->b);
             }
             
             if (!face.uses_EBO)
@@ -90,7 +92,7 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
         for (auto &edge: info_edges)
         {
             auto &color = edge.color;
-            shaders.set_vec3("UNIQUE", "color", color->r, color->g, color->b);
+            shaders.set_vec3(shader_name, "color", color->r, color->g, color->b);
             
             if (!edge.uses_EBO)
                 glDrawArrays(edge.draw_mode, edge.start_indice, edge.count);
@@ -104,7 +106,7 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
         for (auto &point: info_points)
         {
             auto &color = point.color;
-            shaders.set_vec3("UNIQUE", "color", color->r, color->g, color->b);
+            shaders.set_vec3(shader_name, "color", color->r, color->g, color->b);
             
             if (!point.uses_EBO)
                 glDrawArrays(point.draw_mode, point.start_indice, point.count);
@@ -112,6 +114,16 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
                 glDrawElements(point.draw_mode, point.count, GL_UNSIGNED_INT,(void*)(sizeof(unsigned int) * point.start_indice));
         }
     }
+}
+
+void Shape::set_shader_name(const std::string& in_shader_name)
+{
+    shader_name = in_shader_name;
+}
+
+void Shape::set_material(Material* in_material)
+{
+    material = in_material;
 }
 
 void Shape::set_face_color(int in_id, Color* in_color)

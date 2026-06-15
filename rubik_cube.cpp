@@ -18,23 +18,20 @@ bool error(float a, float b)
 }
 
 Rubik::Rubik(const float& in_animation_time):
-	animations(), pivot(nullptr), is_animating(false), animation_time(in_animation_time), layer_queue()
+	animations(), pivot(nullptr), is_animating(false), animation_time(in_animation_time), layer_queue(), cube_material()
 {
+    cube_material.ambient = Vector3(0.1f, 0.1f, 0.1f);
+    cube_material.diffuse = Vector3(0.8f, 0.8f, 0.8f);
+    cube_material.specular = Vector3(0.4f, 0.4f, 0.4f);
+    cube_material.shininess = 32.0f;
+    cube_material.alpha_value = 1.0f;
+
     center = new SceneNode(0);
     center->traslate(Vector3(0.0, 0.0, 0.0f), true);
 
+    
     //cubes.reserve(27);
     Color pink(255.0f, 0.0f, 255.0f, true);
-    
-    textures.add_texture("Dirt", "dirt.png");
-    textures.add_texture("Black", "black_face.png");
-    textures.add_texture("Blue", "blue_face.png");
-    textures.add_texture("Green", "green_face.png");
-    textures.add_texture("Orange", "orange_face.png");
-    textures.add_texture("Red", "red_face.png");
-    textures.add_texture("White", "white_face.png");
-    textures.add_texture("Yellow", "yellow_face.png");
-    textures.add_texture("NO_TEXTURE", "no_texture.png");
 
     float size = 0.5;
     
@@ -42,6 +39,9 @@ Rubik::Rubik(const float& in_animation_time):
     {
         Cube* cube_to_push = new Cube(size);
         cube_to_push->add_faces();
+        cube_to_push->add_textures("Black");
+        cube_to_push->set_material(&cube_material);
+        
         cube_to_push->add_textures("Black");
         //cube_to_push->add_edges(&black);
         //cube_to_push->set_edge_color(ALL_IDs, &black);
@@ -167,11 +167,6 @@ void Rubik::destroy_temp_pivot()
 
 	delete pivot;
     pivot = nullptr;
-}
-
-void Rubik::draw(ShaderList& shaders)
-{
-    center->draw(shaders, textures, Matrix_4());
 }
 
 void Rubik::move(int dir, std::string move_cmd, bool is_stacking)

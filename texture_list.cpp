@@ -9,15 +9,13 @@
 
 #include "texture_list.h"
 
-TextureList::TextureList():
-    textures()
+TextureList::TextureList(std::filesystem::path in_current_path):
+    textures(), current_path(in_current_path)
 {}
 
 void TextureList::add_texture(const std::string& texture_name, const std::string& texture_path)
 {
-    std::filesystem::path current_path = std::filesystem::current_path();
-	current_path = current_path.parent_path();
-    current_path = current_path / "ownProjects" / "Rubik_Jose_Diego_Astrid" / "textures" / texture_path;
+    auto new_current_path = current_path / "textures" / texture_path;
     //std::cout << "Ruta actual: "<< current_path << "\n";
 
     unsigned int texture;
@@ -32,9 +30,9 @@ void TextureList::add_texture(const std::string& texture_name, const std::string
 
     // Load image
     int width, height, nrChannels;
-    unsigned char *data = stbi_load(current_path.string().c_str(), &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(new_current_path.string().c_str(), &width, &height, &nrChannels, 0);
 
-    //std::cout << "Loading textures from: " << current_path << "\n";
+    std::cout << "Loading textures from: " << new_current_path << "\n";
     if (!data)
     {
         std::cout << "STB error: " << stbi_failure_reason() << "\n";

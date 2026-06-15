@@ -3,6 +3,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+
 /*
 
 Integrantes:
@@ -20,26 +21,34 @@ Integrantes:
 #include <deque>
 #include <cmath>
 #include <thread>
+#include <filesystem>
 
 #include "utils.h"
 #include "shader_list.h"
 #include "animation_list.h"
 #include "camera.h"
 #include "texture_list.h"
+#include "light_preset.h"
 #include "rubik_cube.h"
 
-
+std::filesystem::path current_path = std::filesystem::current_path().parent_path() / "ownProjects" / "Computer_Graphics_Rubik";
 Color background_color(205, 208, 255, true);
 Camera camera_world;
 
 AnimationList camera_animations;
+AnimationList light_animations;
+
 std::vector<SceneNode*> nodes;
+std::vector<LightPreset*> presets;
+
+SceneNode* root;
 
 float offset = 0.1f;
 float angle = 10.0f;
 bool is_moving = true;
 
 int current_id = 0;
+int preset_id = 0;
 int dir = 1;
 
 const char *vertexShaderSource = "#version 330 core\n"
@@ -74,7 +83,16 @@ const char *fragmentShader = "#version 330 core\n"
                              "   }\n"
                              "}\0";
 						   								   
-
+const char *fragmentShaderLight = "#version 330 core\n"
+                                  "out vec4 FragColor;\n"
+                                  "in vec2 TexCoord;\n"
+                                  "uniform bool useTexture;\n"
+                                  "uniform vec3 color;\n"
+                                  "uniform sampler2D ourTexture;\n"
+                                  "void main()\n"
+                                  "{\n"
+                                  "      FragColor = vec4(1.0f);\n"
+                                  "}\0";
 
 
 void traslate(const Vector3& in_m)
@@ -129,6 +147,31 @@ void rotate_c_z(float angle)
     }
 }
 
+void update_current_light(int in_id)
+{
+    // Delete current nodes from root
+    for (auto ptr: presets[preset_id]->get_point_lights_ptr())
+    {
+        for (auto it = root->children.begin(); it != root->children.end(); it++)
+        {
+            if (*it == ptr)
+            {
+                root->children.erase(it);
+                break;
+            }
+        }
+    }
+
+    preset_id = in_id;
+    if (preset_id >= presets.size())
+        preset_id = 0;
+
+
+    // Add new light nodes from root
+    for (auto ptr: presets[preset_id]->get_point_lights_ptr())
+        root->add_children(ptr);
+}
+
 void frame_buffer_size_call_back(GLFWwindow* in_window, int in_w, int in_h)
 {
     glViewport(0, 0, in_w, in_h);
@@ -169,6 +212,8 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
             cubito->move(dir, "M3");
 		else if ( key == GLFW_KEY_0)
             dir *= -1;
+        else if ( key == GLFW_KEY_F)
+            light_animations.add_animation({AnimationInfo(ALL_IDs, 360, "ROTATE_C_Z", "PUBLIC")}, 3.5);
 		else if ( key == GLFW_KEY_R)
             cubito->scramble(25);
         else if ( key == GLFW_KEY_I)
@@ -194,22 +239,11 @@ void key_call_back(GLFWwindow* in_window, int key, int scan_code, int action, in
         else if ( key == GLFW_KEY_B)
             camera_animations.add_animation({AnimationInfo(0, 180, "ORBIT_X", "")}, 3.0);
         else if ( key == GLFW_KEY_P)
-        {
-            /*
-            std::cout << "Front: " << cubito->get_front() << "\n";
-            
-            std::cout << "Back: " << cubito->get_back() << "\n";
-            
-            std::cout << "Left: " << cubito->get_left() << "\n";
-            
-            std::cout << "Right: " << cubito->get_right() << "\n";
-            
-            std::cout << "Top: " << cubito->get_top() << "\n";
-            
-            std::cout << "Down: " << cubito->get_down() << "\n";
-            */
-
             cubito->solve();
+        else if ( key == GLFW_KEY_G )
+        {
+            update_current_light(preset_id + 1);
+            std::cout << "Current light preset: " << preset_id << "\n";
         }
         else if ( key == GLFW_KEY_LEFT )
         {
@@ -260,12 +294,35 @@ int main()
     // SHADERSS
     // ***********************
     
-    ShaderList shaders;
-    shaders.create_vertex_shader(vertexShaderSource);
-    shaders.add_fragment_shader("UNIQUE", fragmentShader);
-    shaders.delete_shaders();
+    ShaderList shaders(current_path);
+    //shaders.create_shader("UNIQUE", vertexShaderSource, fragmentShader);
+    shaders.create_shader_path("UNIQUE", "normal_shader.vs", "normal_fragment.fs");
+    shaders.create_shader_path("LIGHT_SHADER", "light_shader.vs", "light_fragment.fs");
+
+    TextureList textures(current_path);
+    textures.add_texture("Dirt", "dirt.png");
+    textures.add_texture("Black", "black_face.png");
+    textures.add_texture("Blue", "blue_face.png");
+    textures.add_texture("Green", "green_face.png");
+    textures.add_texture("Orange", "orange_face.png");
+    textures.add_texture("Red", "red_face.png");
+    textures.add_texture("White", "white_face.png");
+    textures.add_texture("Yellow", "yellow_face.png");
+    textures.add_texture("NO_TEXTURE", "no_texture.png");
     
     
+    LightPreset day = get_day();
+    LightPreset night = get_night();
+    LightPreset cyber_punk = get_cyberpunk();
+    LightPreset desert = get_desert();
+    LightPreset day_cicle = get_day_cicle();
+
+    presets.push_back(&day_cicle);
+    presets.push_back(&day);
+    presets.push_back(&night);
+    presets.push_back(&cyber_punk);
+    
+
     // Colors
     Color pink(255.0f, 0.0f, 255.0f, true);
     Color blue(10.0f, 15.0f, 40.0f, true);
@@ -280,7 +337,7 @@ int main()
     Color white(255.0f, 255.0f, 255.0f, true);
 
     // Camera
-    camera_world.set_pos(Point3(0.0f, 0.0f, 5.0f));
+    camera_world.set_pos(Point3(0.0f, 0.0f, 7.0f));
     camera_world.set_objective(Point3(0.0f, 0.0f, 0.0f));
 
 
@@ -289,7 +346,9 @@ int main()
 
 	Rubik cubito(0.3f);
 	
-	nodes.push_back(cubito.get_center());
+    root = new SceneNode(0);
+    root->add_children(cubito.get_center());
+    nodes.push_back(root);
 
     glfwSetWindowUserPointer(window, &cubito);
 	
@@ -302,8 +361,10 @@ int main()
     float last_frame = 0.0f;
 	
     shaders.use_shader("UNIQUE");
+
     auto projection_matrix = get_perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
     shaders.set_mat4("UNIQUE", "projection", projection_matrix);
+    shaders.set_mat4("LIGHT_SHADER", "projection", projection_matrix);
 
 	
 	std::cout << "-------------------------\n";
@@ -334,6 +395,7 @@ int main()
 
 
         camera_animations.process_animations_camera(camera_world, nodes, delta_time);
+        light_animations.process_animations(presets[preset_id]->get_point_lights_ptr(), delta_time);
         cubito.process_animation(delta_time);
 
 
@@ -342,12 +404,22 @@ int main()
 
         auto view_matrix = camera_world.get_look_at();
         shaders.set_mat4("UNIQUE", "view", view_matrix);
+
+        auto camera_pos = camera_world.pos;
+        shaders.set_vec3("UNIQUE", "view_pos", camera_pos.x, camera_pos.y, camera_pos.z);
+
+        shaders.set_mat4("LIGHT_SHADER", "view", view_matrix);
         
+
+        presets[preset_id]->apply(shaders, background_color);
+        if (presets[preset_id]->has_animation)
+            presets[preset_id]->update_cycle();
+
 		//layer->rotate_y_local(50.0f * delta_time, true);
 		//cubito.pivot->rotate_y_local(50.0f * delta_time, true);
 
 		
-		cubito.draw(shaders);
+        root->draw(shaders, textures, Matrix_4());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
