@@ -29,13 +29,48 @@ Rubik::Rubik(const float& in_animation_time):
     center = new SceneNode(0);
     center->traslate(Vector3(0.0, 0.0, 0.0f), true);
 
+
+    // Move
+    // Bloque Z = 0.52f
+    std::vector<Vector3> all_moves;
+    all_moves.push_back(Vector3(0.52f, 0.52f, 0.52f));
+    all_moves.push_back(Vector3(0.0f, 0.52f, 0.52f));
+    all_moves.push_back(Vector3(-0.52f, 0.52f, 0.52f));
+    all_moves.push_back(Vector3(0.52f, 0.0f, 0.52f));
+    all_moves.push_back(Vector3(0.0f, 0.0f, 0.52f));
+    all_moves.push_back(Vector3(-0.52f, 0.0f, 0.52f));
+    all_moves.push_back(Vector3(0.52f, -0.52f, 0.52f));
+    all_moves.push_back(Vector3(0.0f, -0.52f, 0.52f));
+    all_moves.push_back(Vector3(-0.52f, -0.52f, 0.52f));
+
+    // Bloque Z = 0.0f
+    all_moves.push_back(Vector3(0.52f, 0.52f, 0.0f));
+    all_moves.push_back(Vector3(0.0f, 0.52f, 0.0f));
+    all_moves.push_back(Vector3(-0.52f, 0.52f, 0.0f));
+    all_moves.push_back(Vector3(0.52f, 0.0f, 0.0f));
+    all_moves.push_back(Vector3(0.0f, 0.0f, 0.0f));
+    all_moves.push_back(Vector3(-0.52f, 0.0f, 0.0f));
+    all_moves.push_back(Vector3(0.52f, -0.52f, 0.0f));
+    all_moves.push_back(Vector3(0.0f, -0.52f, 0.0f));
+    all_moves.push_back(Vector3(-0.52f, -0.52f, 0.0f));
+
+    // Bloque Z = -0.52f
+    all_moves.push_back(Vector3(0.52f, 0.52f, -0.52f));
+    all_moves.push_back(Vector3(0.0f, 0.52f, -0.52f));
+    all_moves.push_back(Vector3(-0.52f, 0.52f, -0.52f));
+    all_moves.push_back(Vector3(0.52f, 0.0f, -0.52f));
+    all_moves.push_back(Vector3(0.0f, 0.0f, -0.52f));
+    all_moves.push_back(Vector3(-0.52f, 0.0f, -0.52f));
+    all_moves.push_back(Vector3(0.52f, -0.52f, -0.52f));
+    all_moves.push_back(Vector3(0.0f, -0.52f, -0.52f));
+    all_moves.push_back(Vector3(-0.52f, -0.52f, -0.52f));
     
     //cubes.reserve(27);
     Color pink(255.0f, 0.0f, 255.0f, true);
 
     float size = 0.5;
     
-    for (int i = 0; i < 27; i++)
+    for (int i = 0; i < all_moves.size(); i++)
     {
         Cube* cube_to_push = new Cube(size);
         cube_to_push->add_faces();
@@ -51,8 +86,49 @@ Rubik::Rubik(const float& in_animation_time):
     }    
     
     
-    // Move
+    
+    for (int i = 0; i < all_moves.size(); i++)
+    {
+        Shape* cube = center->children[i]->shape;
+        center->children[i]->traslate(all_moves[i], true);
+        
+        float x = all_moves[i].x;
+        float y = all_moves[i].y;
+        float z = all_moves[i].z;
+
+        if (x == 0.52f)
+            cube->set_textures(3, "Red");
+            //cube->set_textures(3, "Dirt");
+            //cube->set_face_color(3, &red);
+
+        if (x == -0.52f)
+            cube->set_textures(2, "Orange");
+            //cube->set_textures(2, "Dirt");
+            //cube->set_face_color(2, &orange);
+
+        if (y == 0.52f)
+            cube->set_textures(4, "White");
+            //cube->set_textures(4, "Dirt");
+            //cube->set_face_color(4, &white);
+
+        if (y == -0.52f)
+            cube->set_textures(5, "Yellow");
+            //cube->set_textures(5, "Dirt");
+            //cube->set_face_color(5, &yellow);
+
+        if (z == 0.52f)
+            cube->set_textures(0, "Blue");
+            //cube->set_textures(0, "Dirt");
+            //cube->set_face_color(0, &blue);
+
+        if (z == -0.52f)
+            cube->set_textures(1, "Green");
+            //cube->set_textures(1, "Dirt");
+            //cube->set_face_color(1, &green);
+    }
+    /*
     float possible_moves[3] = {0.52f, 0.0f, -0.52f};
+    
     
     int cur_idx = 0;
     for (auto &z: possible_moves)
@@ -95,6 +171,7 @@ Rubik::Rubik(const float& in_animation_time):
                 
                 cur_idx++;
             }
+    */
 }
 
 SceneNode* Rubik::find_layer(float value, char axis, SceneNode* to_search)
