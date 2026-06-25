@@ -5,6 +5,7 @@
 #define NO_EBO false
 
 #include <vector>
+#include <fstream>
 
 #include "matrix.h"
 #include "utils.h"
@@ -13,6 +14,7 @@
 #include "shader_list.h"
 #include "vertex.h"
 #include "texture_list.h"
+#include "material.h"
 
 inline Color base_color(70, 130, 180, true);
 inline Material base_material;
@@ -33,6 +35,8 @@ public:
     std::vector <IndicesInfo> info_faces,
                               info_edges,
                               info_points;
+
+    
 
     Shape();
     
@@ -61,6 +65,14 @@ protected:
 
     virtual void setup_edges(Color *in_color = &base_color);
     virtual void setup_points(Color *in_color = &base_color);
+};
+
+class Mesh3D: public Shape
+{
+public:
+    Mesh3D(std::filesystem::path in_current_path, std::string in_file_path);
+private:
+    void load_object(std::string in_path);
 };
 
 
@@ -123,6 +135,19 @@ class Pyramid : public Shape
 {
 public:
     Pyramid(const float& in_height, const float& in_base);
+
+private:
+    float height, base;
+
+    void create_pyramid(Color *in_color);
+    void setup_edges(Color* in_color = &base_color) override;
+    void setup_points(Color* in_color = &base_color) override;
+};
+
+class Pyramid3 : public Shape
+{
+public:
+    Pyramid3(const float& in_height, const float& in_base);
 
 private:
     float height, base;
