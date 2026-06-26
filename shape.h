@@ -16,7 +16,6 @@
 #include "texture_list.h"
 #include "material.h"
 
-inline Color base_color(70, 130, 180, true);
 inline Material base_material;
 inline std::string base_texture = "NO_TEXTURE";
 
@@ -27,7 +26,6 @@ public:
     unsigned int VAO, VBO, EBO;
     Point3 center;
     std::string shader_name;
-    Material* material;
 
     std::vector <Vertex> vertices;
     std::vector <unsigned int> indices;
@@ -47,24 +45,23 @@ public:
     void draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& in_world = Matrix_4());
 
     void set_shader_name(const std::string& in_shader_name);
-    void set_material(Material* in_material = &base_material);
 
-    void set_face_color(int in_id, Color* in_color);
-    void set_edge_color(int in_id, Color* in_color);
-    void set_point_color(int in_id, Color* in_color);
+    void set_face_color(int in_id, Material* in_material);
+    void set_edge_color(int in_id, Material* in_material);
+    void set_point_color(int in_id, Material* in_material);
     void set_textures(int in_id, std::string in_texture);
 
-    void add_edges(Color *in_color = &base_color);
-    void add_points(Color *in_color = &base_color);
-    void add_faces(Color *in_color = &base_color);
+    void add_edges(Material* in_material = &base_material);
+    void add_points(Material* in_material = &base_material);
+    void add_faces(Material* in_material = &base_material);
     void add_textures(const std::string in_texture = base_texture);
 
     Vector3 get_normal(int in_face_id);
 protected:
     std::vector<Vector3> normals;
 
-    virtual void setup_edges(Color *in_color = &base_color);
-    virtual void setup_points(Color *in_color = &base_color);
+    virtual void setup_edges(Material *in_material = &base_material);
+    virtual void setup_points(Material *in_material = &base_material);
 };
 
 class Mesh3D: public Shape
@@ -85,8 +82,8 @@ private:
     unsigned int n_points;
     float radius;
 
-    void create_circle(Color *in_color);
-    void setup_edges(Color* in_color = &base_color) override;
+    void create_circle(Material *in_material);
+    void setup_edges(Material* in_material = &base_material) override;
 };
 
 class CircularSector : public Shape
@@ -104,8 +101,8 @@ private:
     unsigned int n_points;
     float radius, start_angle, end_angle;
 
-    void create_sector(const float& in_ox, const float& in_oy, Color *in_color);
-    void setup_edges(Color* in_color = &base_color) override;
+    void create_sector(const float& in_ox, const float& in_oy, Material *in_material);
+    void setup_edges(Material* in_material = &base_material) override;
 };
 
 class Rectangle : public Shape
@@ -114,9 +111,9 @@ public:
     Rectangle(const float& in_height, const float& in_width);
 
 private:
-    void create_rectangle(float in_height, float in_width, Color *in_color);
-    void setup_edges(Color* in_color = &base_color) override;
-    void setup_points(Color* in_color = &base_color) override;
+    void create_rectangle(float in_height, float in_width, Material *in_material);
+    void setup_edges(Material* in_material = &base_material) override;
+    void setup_points(Material* in_material = &base_material) override;
 };
 
 class Elipse : public Shape
@@ -127,8 +124,8 @@ public:
            const float& in_width);
 
 private:
-    void create_elipse(float in_height, float in_width, int in_points, Color *in_color);
-    void setup_edges(Color* in_color = &base_color) override;
+    void create_elipse(float in_height, float in_width, int in_points, Material *in_material);
+    void setup_edges(Material* in_material = &base_material) override;
 };
 
 class Pyramid : public Shape
@@ -139,9 +136,9 @@ public:
 private:
     float height, base;
 
-    void create_pyramid(Color *in_color);
-    void setup_edges(Color* in_color = &base_color) override;
-    void setup_points(Color* in_color = &base_color) override;
+    void create_pyramid(Material *in_material);
+    void setup_edges(Material* in_material = &base_material) override;
+    void setup_points(Material* in_material = &base_material) override;
 };
 
 class Pyramid3 : public Shape
@@ -152,9 +149,9 @@ public:
 private:
     float height, base;
 
-    void create_pyramid(Color *in_color);
-    void setup_edges(Color* in_color = &base_color) override;
-    void setup_points(Color* in_color = &base_color) override;
+    void create_pyramid(Material *in_material);
+    void setup_edges(Material* in_material = &base_material) override;
+    void setup_points(Material* in_material = &base_material) override;
 };
 
 class Cube : public Shape
@@ -165,9 +162,9 @@ public:
 private:
     float size;
 
-    void create_cube(Color* in_color);
-    void setup_edges(Color* in_color = &base_color) override;
-    void setup_points(Color* in_color = &base_color) override;
+    void create_cube(Material* in_material);
+    void setup_edges(Material* in_material = &base_material) override;
+    void setup_points(Material* in_material = &base_material) override;
 };
 
 class Cone : public Shape
@@ -181,9 +178,9 @@ private:
     float height, radius;
     unsigned int points;
 
-    void create_cone(Color* in_color);
-    void setup_edges(Color* in_color = &base_color) override;
-    void setup_points(Color* in_color = &base_color) override;
+    void create_cone(Material* in_material);
+    void setup_edges(Material* in_material = &base_material) override;
+    void setup_points(Material* in_material = &base_material) override;
 };
 
 class Sphere : public Shape
@@ -196,9 +193,9 @@ private:
     unsigned int points;
     float radius;
 
-    void create_sphere(Color* in_color);
-    void setup_edges(Color* in_color = &base_color) override;
-    void setup_points(Color* in_color = &base_color) override;
+    void create_sphere(Material* in_material);
+    void setup_edges(Material* in_material = &base_material) override;
+    void setup_points(Material* in_material = &base_material) override;
 };
 
 #endif

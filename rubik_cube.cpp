@@ -73,9 +73,8 @@ Rubik::Rubik(const float& in_animation_time):
     for (int i = 0; i < all_moves.size(); i++)
     {
         Cube* cube_to_push = new Cube(size);
-        cube_to_push->add_faces();
+        cube_to_push->add_faces(&cube_material);
         cube_to_push->add_textures("Black");
-        cube_to_push->set_material(&cube_material);
         
         cube_to_push->add_textures("Black");
         //cube_to_push->add_edges(&black);

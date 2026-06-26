@@ -11,14 +11,14 @@
 
 
 #include <string>
-#include "color.h"
+#include "material.h"
 
 
 class IndicesInfo
 {
 public:
     unsigned int start_indice, count, draw_mode;
-    Color* color;
+    Material* material;
     bool uses_EBO;
     std::string texture_name;
 
@@ -26,13 +26,13 @@ public:
                 unsigned int in_indices_count,
                 unsigned int in_draw_mode,
                 bool in_uses_EBO, 
-                Color* in_color,
+                Material* in_material,
                 const std::string& in_texture_name = ""):
         start_indice(in_start_indice),
         count(in_indices_count),
         draw_mode(in_draw_mode),
         uses_EBO(in_uses_EBO),
-        color(in_color),
+        material(in_material),
         texture_name(in_texture_name)
     {}
 };

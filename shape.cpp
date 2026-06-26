@@ -7,7 +7,7 @@
 // SHAPE
 
 Shape::Shape():
-    vertices(), indices(), center(), shader_name("UNIQUE"), material(&base_material),
+    vertices(), indices(), center(), shader_name("UNIQUE"),
 
     has_faces(false),
     has_edges(false),
@@ -59,11 +59,6 @@ void Shape::set_shader_name(const std::string& in_shader_name)
     shader_name = in_shader_name;
 }
 
-void Shape::set_material(Material* in_material)
-{
-    material = in_material;
-}
-
 void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& in_world)
 {
     glBindVertexArray(VAO);
@@ -71,22 +66,18 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
     shaders.use_shader(shader_name);
     shaders.set_mat4(shader_name, "model", in_world);
     shaders.set_bool(shader_name, "useTexture", uses_texture);
-    shaders.set_material(shader_name, "material", material);
 
     if (has_faces)
     {
         for (auto &face: info_faces)
         {
+            shaders.set_material(shader_name, "material", face.material);
+
             if (uses_texture)
             {
                 in_textures.use_texture(face.texture_name, 0);
                 shaders.set_texture(shader_name, "ourTexture", 0);
-            }
-            else
-            {
-                auto &color = face.color;
-                shaders.set_vec3(shader_name, "color", color->r, color->g, color->b);
-            }
+            }    
             
             if (!face.uses_EBO)
                 glDrawArrays(face.draw_mode, face.start_indice, face.count);
@@ -100,8 +91,7 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
     {
         for (auto &edge: info_edges)
         {
-            auto &color = edge.color;
-            shaders.set_vec3(shader_name, "color", color->r, color->g, color->b);
+            shaders.set_material(shader_name, "material", edge.material);
             
             if (!edge.uses_EBO)
                 glDrawArrays(edge.draw_mode, edge.start_indice, edge.count);
@@ -114,8 +104,7 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
     {
         for (auto &point: info_points)
         {
-            auto &color = point.color;
-            shaders.set_vec3(shader_name, "color", color->r, color->g, color->b);
+            shaders.set_material(shader_name, "material", point.material);
             
             if (!point.uses_EBO)
                 glDrawArrays(point.draw_mode, point.start_indice, point.count);
@@ -125,45 +114,45 @@ void Shape::draw(ShaderList& shaders, TextureList& in_textures, const Matrix_4& 
     }
 }
 
-void Shape::set_face_color(int in_id, Color* in_color)
+void Shape::set_face_color(int in_id, Material* in_material)
 {
     if (in_id == ALL_IDs)
     {
         for (auto &f : info_faces)
-            f.color = in_color;
+            f.material = in_material;
         return;
     }
 
-    if (in_id < 0 || in_id >= info_faces.size() || in_color == nullptr)
+    if (in_id < 0 || in_id >= info_faces.size() || in_material == nullptr)
         return;
     
-    info_faces[in_id].color = in_color;
+    info_faces[in_id].material = in_material;
 }
 
-void Shape::set_edge_color(int in_id, Color* in_color)
+void Shape::set_edge_color(int in_id, Material* in_material)
 {
     if (in_id == ALL_IDs)
     {
         for (auto &e : info_edges)
-            e.color = in_color;
+            e.material = in_material;
         return;
     }
-    if (in_id < 0 || in_id >= info_edges.size() || in_color == nullptr)
+    if (in_id < 0 || in_id >= info_edges.size() || in_material == nullptr)
         return;
-    info_edges[in_id].color = in_color;
+    info_edges[in_id].material = in_material;
 }
 
-void Shape::set_point_color(int in_id, Color* in_color)
+void Shape::set_point_color(int in_id, Material* in_material)
 {
     if (in_id == ALL_IDs)
     {
         for (auto &p : info_points)
-            p.color = in_color;
+            p.material = in_material;
         return;
     }
-    if (in_id < 0 || in_id >= info_points.size() || in_color == nullptr)
+    if (in_id < 0 || in_id >= info_points.size() || in_material == nullptr)
         return;
-    info_points[in_id].color = in_color;
+    info_points[in_id].material = in_material;
 }
 
 void Shape::set_textures(int in_id, std::string in_texture)
@@ -179,25 +168,25 @@ void Shape::set_textures(int in_id, std::string in_texture)
     info_faces[in_id].texture_name = in_texture;
 }
 
-void Shape::add_edges(Color *in_color)
+void Shape::add_edges(Material* in_material)
 {
     has_edges = true;
     for (auto &f : info_edges)
-        f.color = in_color;
+        f.material = in_material;
 }
 
-void Shape::add_points(Color *in_color)
+void Shape::add_points(Material* in_material)
 {
     has_points = true;
     for (auto &f : info_points)
-        f.color = in_color;
+        f.material = in_material;
 }
 
-void Shape::add_faces(Color *in_color)
+void Shape::add_faces(Material* in_material)
 {
     has_faces = true;
     for (auto &f : info_faces)
-        f.color = in_color;
+        f.material = in_material;
 }
 
 void Shape::add_textures(const std::string in_texture)
@@ -207,10 +196,10 @@ void Shape::add_textures(const std::string in_texture)
         f.texture_name = in_texture;
 }
 
-void Shape::setup_edges(Color *in_color)
+void Shape::setup_edges(Material*in_material)
 { }
 
-void Shape::setup_points(Color *in_color)
+void Shape::setup_points(Material*in_material)
 { }
 
 Vector3 Shape::get_normal(int in_face_id)
@@ -300,7 +289,7 @@ void Mesh3D::load_object(std::string in_path)
             }
         }
     }
-    info_faces.push_back(IndicesInfo(0, indices.size(), GL_TRIANGLES, YES_EBO, &base_color));
+    info_faces.push_back(IndicesInfo(0, indices.size(), GL_TRIANGLES, YES_EBO, &base_material));
 }
 
 
@@ -309,21 +298,21 @@ void Mesh3D::load_object(std::string in_path)
 Circle::Circle(const unsigned int& in_points, const float& in_radius)
 : n_points(in_points), radius(in_radius), Shape()
 {
-    create_circle(&base_color);
-    setup_edges(&base_color);
+    create_circle(&base_material);
+    setup_edges(&base_material);
 
     init_buffers();
 }
 
-void Circle::setup_edges(Color* in_color) 
+void Circle::setup_edges(Material* in_material) 
 {
     int v_count = vertices.size() - 1;
 
-    info_edges.push_back(IndicesInfo(1, v_count, GL_LINE_LOOP, NO_EBO, in_color));
+    info_edges.push_back(IndicesInfo(1, v_count, GL_LINE_LOOP, NO_EBO, in_material));
 }
 
 
-void Circle::create_circle(Color *in_color)
+void Circle::create_circle(Material*in_material)
 {
     float step = 360.0 / float(n_points);
     
@@ -340,7 +329,7 @@ void Circle::create_circle(Color *in_color)
     }
 
     int v_count = vertices.size();
-    info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_color));
+    info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_material));
 }
 
 
@@ -356,21 +345,21 @@ CircularSector::CircularSector(const unsigned int& in_points,
     n_points(in_points), radius(in_radius), start_angle(in_start), end_angle(in_end),
     Shape()
 {
-    create_sector(in_ox, in_oy, &base_color);
-    setup_edges(&base_color);
+    create_sector(in_ox, in_oy, &base_material);
+    setup_edges(&base_material);
 
     init_buffers();
 }
 
-void CircularSector::setup_edges(Color* in_color)
+void CircularSector::setup_edges(Material* in_material)
 {
     int v_count = vertices.size();
 
-    info_edges.push_back(IndicesInfo(0, v_count, GL_LINE_LOOP, NO_EBO, in_color));
+    info_edges.push_back(IndicesInfo(0, v_count, GL_LINE_LOOP, NO_EBO, in_material));
 }
 
 
-void CircularSector::create_sector(const float& in_ox, const float& in_oy, Color *in_color)
+void CircularSector::create_sector(const float& in_ox, const float& in_oy, Material*in_material)
 {
     float range = end_angle - start_angle;
     float step = range / float(n_points);
@@ -396,7 +385,7 @@ void CircularSector::create_sector(const float& in_ox, const float& in_oy, Color
 
 
     int v_count = vertices.size();
-    info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_color));
+    info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_material));
 }
 
 // RECTANGLE
@@ -404,29 +393,29 @@ void CircularSector::create_sector(const float& in_ox, const float& in_oy, Color
 Rectangle::Rectangle(const float& in_height, const float& in_width)
     : Shape()
 {
-    create_rectangle(in_height, in_width, &base_color);
-    setup_edges(&base_color);
-    setup_points(&base_color);
+    create_rectangle(in_height, in_width, &base_material);
+    setup_edges(&base_material);
+    setup_points(&base_material);
 
     init_buffers();
 }
 
-void Rectangle::setup_edges(Color* in_color)
+void Rectangle::setup_edges(Material* in_material)
 {
     int v_count = vertices.size();
 
-    info_edges.push_back(IndicesInfo(0, v_count, GL_LINE_LOOP, NO_EBO, in_color));
+    info_edges.push_back(IndicesInfo(0, v_count, GL_LINE_LOOP, NO_EBO, in_material));
 }
 
-void Rectangle::setup_points(Color* in_color)
+void Rectangle::setup_points(Material* in_material)
 {
     int v_count = vertices.size();
 
     for (int i = 0; i < v_count; i++)
-        info_points.push_back(IndicesInfo(i, 1, GL_POINTS, NO_EBO, in_color));
+        info_points.push_back(IndicesInfo(i, 1, GL_POINTS, NO_EBO, in_material));
 }
 
-void Rectangle::create_rectangle(float in_height, float in_width, Color *in_color)
+void Rectangle::create_rectangle(float in_height, float in_width, Material*in_material)
 {
     float x_mid = in_width / 2.0f;
     float y_mid = in_height / 2.0f;
@@ -441,7 +430,7 @@ void Rectangle::create_rectangle(float in_height, float in_width, Color *in_colo
         vertices.push_back(Point3(l_x[i] + center.x, l_y[i] + center.y, 0.0f));
 
     int v_count = vertices.size();
-    info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_color));
+    info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_material));
 }
 
 // ELIPSE
@@ -449,21 +438,21 @@ Elipse::Elipse(const unsigned int& in_points,
                const float& in_height,
                const float& in_width)
 {
-    create_elipse(in_height, in_width, in_points, &base_color);
-    setup_edges(&base_color);
+    create_elipse(in_height, in_width, in_points, &base_material);
+    setup_edges(&base_material);
 
     init_buffers();
 }
 
 
-void Elipse::setup_edges(Color* in_color) 
+void Elipse::setup_edges(Material* in_material) 
 {
     int v_count = vertices.size()- 1;
 
-    info_edges.push_back(IndicesInfo(1, v_count, GL_LINE_LOOP, NO_EBO, in_color));
+    info_edges.push_back(IndicesInfo(1, v_count, GL_LINE_LOOP, NO_EBO, in_material));
 }
 
-void Elipse::create_elipse(float in_height, float in_width, int in_points, Color *in_color)
+void Elipse::create_elipse(float in_height, float in_width, int in_points, Material*in_material)
 {
     vertices.push_back(Point3(center.x, center.y, 0.0f));
 
@@ -480,21 +469,21 @@ void Elipse::create_elipse(float in_height, float in_width, int in_points, Color
     }
 
     int v_count = vertices.size();
-    info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_color));
+    info_faces.push_back(IndicesInfo(0, v_count, GL_TRIANGLE_FAN, NO_EBO, in_material));
 }
 
 // PYRAMID
 Pyramid::Pyramid(const float& in_height, const float& in_base)
     : Shape(), height(in_height), base(in_base)
 {
-    create_pyramid(&base_color);
-    setup_edges(&base_color);
-    setup_points(&base_color);
+    create_pyramid(&base_material);
+    setup_edges(&base_material);
+    setup_points(&base_material);
 
     init_buffers();
 }
 
-void Pyramid::setup_points(Color* in_color) 
+void Pyramid::setup_points(Material* in_material) 
 {
     int s_indice = indices.size();
 
@@ -511,10 +500,10 @@ void Pyramid::setup_points(Color* in_color)
     indices.push_back(bl);
 
     for (int i = 0; i < 5; i++)
-        info_points.push_back(IndicesInfo(s_indice + i, 1, GL_POINTS, NO_EBO, in_color));
+        info_points.push_back(IndicesInfo(s_indice + i, 1, GL_POINTS, NO_EBO, in_material));
 }
 
-void Pyramid::setup_edges(Color* in_color) 
+void Pyramid::setup_edges(Material* in_material) 
 {
     int s_indice = indices.size();
 
@@ -536,10 +525,10 @@ void Pyramid::setup_edges(Color* in_color)
     indices.push_back(bl);  indices.push_back(fl);
 
     for (int i = 0; i < 8; i++)
-        info_edges.push_back(IndicesInfo(s_indice + (2 * i), 2, GL_LINES, YES_EBO, in_color));
+        info_edges.push_back(IndicesInfo(s_indice + (2 * i), 2, GL_LINES, YES_EBO, in_material));
 }
 
-void Pyramid::create_pyramid(Color *in_color)
+void Pyramid::create_pyramid(Material*in_material)
 {
     float h = height / 2.0f;
     float b = base  / 2.0f;
@@ -565,7 +554,7 @@ void Pyramid::create_pyramid(Color *in_color)
     vertices.push_back(Vertex(fl, normal, Point2(0,0)));
     vertices.push_back(Vertex(fr, normal, Point2(0,0)));
     indices.push_back(start_idx); indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-    info_faces.push_back(IndicesInfo(0, 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(0, 3, GL_TRIANGLES, YES_EBO, in_material));
 
     // TOP - FR - BR - RIGHT
     v1 = fr - top;
@@ -578,7 +567,7 @@ void Pyramid::create_pyramid(Color *in_color)
     vertices.push_back(Vertex(fr, normal, Point2(0,0)));
     vertices.push_back(Vertex(br, normal, Point2(0,0)));
     indices.push_back(start_idx); indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-    info_faces.push_back(IndicesInfo(3, 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(3, 3, GL_TRIANGLES, YES_EBO, in_material));
 
     // BACK - TOP - BR - BL
     v1 = br - top;
@@ -591,7 +580,7 @@ void Pyramid::create_pyramid(Color *in_color)
     vertices.push_back(Vertex(br, normal, Point2(0,0)));
     vertices.push_back(Vertex(bl, normal, Point2(0,0)));
     indices.push_back(start_idx); indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-    info_faces.push_back(IndicesInfo(6, 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(6, 3, GL_TRIANGLES, YES_EBO, in_material));
 
     // LEFT - TOP - BL - FL
     v1 = bl - top;
@@ -604,7 +593,7 @@ void Pyramid::create_pyramid(Color *in_color)
     vertices.push_back(Vertex(bl, normal, Point2(0,0)));
     vertices.push_back(Vertex(fl, normal, Point2(0,0)));
     indices.push_back(start_idx); indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-    info_faces.push_back(IndicesInfo(9, 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(9, 3, GL_TRIANGLES, YES_EBO, in_material));
 
     // BASE
     Vector3 down_normal(0.0f, -1.0f, 0.0f);
@@ -625,21 +614,21 @@ void Pyramid::create_pyramid(Color *in_color)
     indices.push_back(start_idx + 4);
     indices.push_back(start_idx + 5);
     
-    info_faces.push_back(IndicesInfo(12, 6, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(12, 6, GL_TRIANGLES, YES_EBO, in_material));
 }
 
 // PYRAMID 3
 Pyramid3::Pyramid3(const float& in_height, const float& in_base)
     : Shape(), height(in_height), base(in_base)
 {
-    create_pyramid(&base_color);
-    setup_edges(&base_color);
-    setup_points(&base_color);
+    create_pyramid(&base_material);
+    setup_edges(&base_material);
+    setup_points(&base_material);
 
     init_buffers();
 }
 
-void Pyramid3::setup_points(Color* in_color) 
+void Pyramid3::setup_points(Material* in_material) 
 {
     int s_indice = indices.size();
 
@@ -654,10 +643,10 @@ void Pyramid3::setup_points(Color* in_color)
     indices.push_back(br);
 
     for (int i = 0; i < 4; i++)
-        info_points.push_back(IndicesInfo(s_indice + i, 1, GL_POINTS, NO_EBO, in_color));
+        info_points.push_back(IndicesInfo(s_indice + i, 1, GL_POINTS, NO_EBO, in_material));
 }
 
-void Pyramid3::setup_edges(Color* in_color) 
+void Pyramid3::setup_edges(Material* in_material) 
 {
     int s_indice = indices.size();
 
@@ -676,10 +665,10 @@ void Pyramid3::setup_edges(Color* in_color)
     indices.push_back(fl);  indices.push_back(fr);
 
     for (int i = 0; i < 6; i++)
-        info_edges.push_back(IndicesInfo(s_indice + (2 * i), 2, GL_LINES, YES_EBO, in_color));
+        info_edges.push_back(IndicesInfo(s_indice + (2 * i), 2, GL_LINES, YES_EBO, in_material));
 }
 
-void Pyramid3::create_pyramid(Color *in_color)
+void Pyramid3::create_pyramid(Material*in_material)
 {
     float h = height / 2.0f;
     float b = base  / 2.0f;
@@ -704,7 +693,7 @@ void Pyramid3::create_pyramid(Color *in_color)
     vertices.push_back(Vertex(fl, normal, Point2(0,0)));
     vertices.push_back(Vertex(fr, normal, Point2(0,0)));
     indices.push_back(start_idx); indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-    info_faces.push_back(IndicesInfo(0, 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(0, 3, GL_TRIANGLES, YES_EBO, in_material));
 
     // TOP - FR - BR - RIGHT
     v1 = Vector3(fr.x - top.x, fr.y - top.y, fr.z - top.z);
@@ -717,7 +706,7 @@ void Pyramid3::create_pyramid(Color *in_color)
     vertices.push_back(Vertex(fr, normal, Point2(0,0)));
     vertices.push_back(Vertex(br, normal, Point2(0,0)));
     indices.push_back(start_idx); indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-    info_faces.push_back(IndicesInfo(3, 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(3, 3, GL_TRIANGLES, YES_EBO, in_material));
 
     // BACK - TOP - BR - FL
     v1 = top - br;
@@ -730,7 +719,7 @@ void Pyramid3::create_pyramid(Color *in_color)
     vertices.push_back(Vertex(br, normal, Point2(0,0)));
     vertices.push_back(Vertex(fl, normal, Point2(0,0)));
     indices.push_back(start_idx); indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-    info_faces.push_back(IndicesInfo(6, 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(6, 3, GL_TRIANGLES, YES_EBO, in_material));
 
     
 
@@ -746,7 +735,7 @@ void Pyramid3::create_pyramid(Color *in_color)
     indices.push_back(start_idx + 1);
     indices.push_back(start_idx + 2);
     
-    info_faces.push_back(IndicesInfo(9, 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(9, 3, GL_TRIANGLES, YES_EBO, in_material));
 }
 
 // CUBE
@@ -754,22 +743,22 @@ void Pyramid3::create_pyramid(Color *in_color)
 Cube::Cube(const float& in_size):
     Shape(), size(in_size)
 {
-    create_cube(&base_color);
-    setup_edges(&base_color);
-    setup_points(&base_color);
+    create_cube(&base_material);
+    setup_edges(&base_material);
+    setup_points(&base_material);
 
     init_buffers();
 }
 
-void Cube::setup_points(Color* in_color) 
+void Cube::setup_points(Material* in_material) 
 {
     int v_count = 8;
 
     for (int i = 0; i < v_count; i++)
-        info_points.push_back(IndicesInfo (i, 1, GL_POINTS, NO_EBO, in_color));
+        info_points.push_back(IndicesInfo (i, 1, GL_POINTS, NO_EBO, in_material));
 }
 
-void Cube::setup_edges(Color* in_color) 
+void Cube::setup_edges(Material* in_material) 
 {
     int s_indice = indices.size();
     // Front
@@ -793,10 +782,10 @@ void Cube::setup_edges(Color* in_color)
     indices.push_back(3); indices.push_back(7);
 
     for (int i = 0; i < 12; i++)
-        info_edges.push_back(IndicesInfo (s_indice + (2 * i), 2, GL_LINES, YES_EBO, in_color));
+        info_edges.push_back(IndicesInfo (s_indice + (2 * i), 2, GL_LINES, YES_EBO, in_material));
 }
 
-void Cube::create_cube(Color* in_color)
+void Cube::create_cube(Material* in_material)
 {
     float s = size / 2.0f;
 
@@ -860,32 +849,32 @@ void Cube::create_cube(Color* in_color)
     // Front
     indices.push_back(0); indices.push_back(1); indices.push_back(2);
     indices.push_back(0); indices.push_back(2); indices.push_back(3);
-    info_faces.push_back(IndicesInfo(0, 6, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(0, 6, GL_TRIANGLES, YES_EBO, in_material));
 
     // Back
     indices.push_back(4); indices.push_back(5); indices.push_back(6);
     indices.push_back(4); indices.push_back(6); indices.push_back(7);
-    info_faces.push_back(IndicesInfo(6, 6, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(6, 6, GL_TRIANGLES, YES_EBO, in_material));
 
     // Left
     indices.push_back(8); indices.push_back(9); indices.push_back(10);
     indices.push_back(8); indices.push_back(10); indices.push_back(11);
-    info_faces.push_back(IndicesInfo(12, 6, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(12, 6, GL_TRIANGLES, YES_EBO, in_material));
 
     // Right
     indices.push_back(12); indices.push_back(13); indices.push_back(14);
     indices.push_back(12); indices.push_back(14); indices.push_back(15);
-    info_faces.push_back(IndicesInfo(18, 6, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(18, 6, GL_TRIANGLES, YES_EBO, in_material));
 
     // Top
     indices.push_back(16); indices.push_back(17); indices.push_back(18);
     indices.push_back(16); indices.push_back(18); indices.push_back(19);
-    info_faces.push_back(IndicesInfo(24, 6, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(24, 6, GL_TRIANGLES, YES_EBO, in_material));
 
     // Bottom
     indices.push_back(20); indices.push_back(21); indices.push_back(22);
     indices.push_back(20); indices.push_back(22); indices.push_back(23);
-    info_faces.push_back(IndicesInfo(30, 6, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(30, 6, GL_TRIANGLES, YES_EBO, in_material));
 }
 
 // CONE
@@ -895,14 +884,14 @@ Cone::Cone(const unsigned int& in_points,
         const float& in_radius):
     Shape(), height(in_height), radius(in_radius), points(in_points)
 {
-    create_cone(&base_color);
-    setup_edges(&base_color);
-    setup_points(&base_color);
+    create_cone(&base_material);
+    setup_edges(&base_material);
+    setup_points(&base_material);
 
     init_buffers();
 }
 
-void Cone::setup_edges(Color* in_color) 
+void Cone::setup_edges(Material* in_material) 
 {
     int s_indice = indices.size();
 
@@ -919,15 +908,15 @@ void Cone::setup_edges(Color* in_color)
         indices.push_back(i + 1);
     }
 
-    info_edges.push_back(IndicesInfo(s_indice, points * 2 * 2, GL_LINES, YES_EBO, in_color));
+    info_edges.push_back(IndicesInfo(s_indice, points * 2 * 2, GL_LINES, YES_EBO, in_material));
 }
 
-void Cone::setup_points(Color* in_color) 
+void Cone::setup_points(Material* in_material) 
 {
-    info_points.push_back(IndicesInfo(0, 1, GL_POINTS, NO_EBO, in_color));
+    info_points.push_back(IndicesInfo(0, 1, GL_POINTS, NO_EBO, in_material));
 }
 
-void Cone::create_cone(Color* in_color)
+void Cone::create_cone(Material* in_material)
 {
     float h = height / 2.0f;
     float step = 360.0f / float(points);
@@ -959,7 +948,7 @@ void Cone::create_cone(Color* in_color)
         indices.push_back(lateral_start_idx + i);
         indices.push_back(lateral_start_idx + i + 1);
     }
-    info_faces.push_back(IndicesInfo(0, points * 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(0, points * 3, GL_TRIANGLES, YES_EBO, in_material));
 
 
     // BASE
@@ -988,7 +977,7 @@ void Cone::create_cone(Color* in_color)
         indices.push_back(center_vertex_pos + i + 1);
         indices.push_back(center_vertex_pos + i);
     }
-    info_faces.push_back(IndicesInfo(base_start_index_buffer, points * 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo(base_start_index_buffer, points * 3, GL_TRIANGLES, YES_EBO, in_material));
 }
 // SPHERE
 
@@ -996,14 +985,14 @@ Sphere::Sphere(const unsigned int& in_points,
         const float& in_radius):
     Shape(), points(in_points), radius(in_radius)
 {
-    create_sphere(&base_color);
-    setup_edges(&base_color);
-    setup_points(&base_color);
+    create_sphere(&base_material);
+    setup_edges(&base_material);
+    setup_points(&base_material);
 
     init_buffers();
 }
 
-void Sphere::setup_edges(Color* in_color) 
+void Sphere::setup_edges(Material* in_material) 
 {
     int v_count = vertices.size();
     int step = v_count / 6;
@@ -1011,14 +1000,14 @@ void Sphere::setup_edges(Color* in_color)
     int start = 0;
     for (int i = 0; i < 5; i++)
     {
-        info_edges.push_back(IndicesInfo(start, step, GL_LINE_LOOP, NO_EBO, in_color));
+        info_edges.push_back(IndicesInfo(start, step, GL_LINE_LOOP, NO_EBO, in_material));
         start += step;
     }
 
-    info_edges.push_back(IndicesInfo(start, (v_count - start), GL_LINE_LOOP, NO_EBO, in_color));
+    info_edges.push_back(IndicesInfo(start, (v_count - start), GL_LINE_LOOP, NO_EBO, in_material));
 }
 
-void Sphere::setup_points(Color* in_color) 
+void Sphere::setup_points(Material* in_material) 
 {
     int v_count = vertices.size();
     int step = v_count / 6;
@@ -1026,14 +1015,14 @@ void Sphere::setup_points(Color* in_color)
     int start = 0;
     for (int i = 0; i < 5; i++)
     {
-        info_points.push_back(IndicesInfo(start, step, GL_POINTS, NO_EBO, in_color));
+        info_points.push_back(IndicesInfo(start, step, GL_POINTS, NO_EBO, in_material));
         start += step;
     }
 
-    info_points.push_back(IndicesInfo(start, (v_count - start), GL_POINTS, NO_EBO, in_color));
+    info_points.push_back(IndicesInfo(start, (v_count - start), GL_POINTS, NO_EBO, in_material));
 }
 
-void Sphere::create_sphere(Color* in_color)
+void Sphere::create_sphere(Material* in_material)
 {
     float stack_step  = 180.0f / float(points);
     float sector_step = 360.0f / float(points);
@@ -1079,7 +1068,7 @@ void Sphere::create_sphere(Color* in_color)
     int batch_size = total_size / section_num;
 
     for (int i = 0; i < section_num - 1; i++)
-        info_faces.push_back(IndicesInfo(i * batch_size * 3, batch_size * 3, GL_TRIANGLES, YES_EBO, in_color));
+        info_faces.push_back(IndicesInfo(i * batch_size * 3, batch_size * 3, GL_TRIANGLES, YES_EBO, in_material));
 
-    info_faces.push_back(IndicesInfo((section_num - 1) * batch_size * 3, (total_size - ((section_num - 1) * batch_size)) * 3, GL_TRIANGLES, YES_EBO, in_color));
+    info_faces.push_back(IndicesInfo((section_num - 1) * batch_size * 3, (total_size - ((section_num - 1) * batch_size)) * 3, GL_TRIANGLES, YES_EBO, in_material));
 }
